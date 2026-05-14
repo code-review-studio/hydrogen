@@ -13,6 +13,8 @@ exclude:
   - "**/build/**"
   - "templates/skeleton/app/graphql/**/*.generated.ts"
   - "templates/skeleton/.shopify/**"
+  - "templates/skeleton/app/routes/api.*"
+  - "templates/skeleton/app/routes/api.**/*"
 conclusion: neutral
 ---
 
@@ -103,6 +105,7 @@ Review changes to the skeleton template's route and component code for the conve
 - Ignore generated code (`*.generated.ts`, `*.generated.d.ts`), vendored dependencies, and lockfiles.
 - Do not flag the `Prefer type Over interface` rule on declaration-merging cases (e.g. extending `Window` or third-party module augmentation).
 - Component files under `templates/skeleton/app/components/**` are not full routes — only apply the route-specific rules (ErrorBoundary, route export order, loader returns) to files in `templates/skeleton/app/routes/**`.
+- Do not flag missing `ErrorBoundary` on API routes — routes whose filename starts with `api.` (e.g. `templates/skeleton/app/routes/api.$version.[graphql.json].tsx`) or whose default export returns a `Response` / `Response.json(...)` rather than JSX. These serve downstream API consumers, not users; error handling belongs in the loader/action as a JSON error response, not in an `ErrorBoundary` component returning a `<div>`. (The `exclude` globs already keep `api.*` files out of scope, but if the routing layout ever changes, the rule should remain silent on JSON-returning routes regardless of filename.)
 
 ## Output format
 
