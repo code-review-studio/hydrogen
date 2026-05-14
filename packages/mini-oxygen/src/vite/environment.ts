@@ -94,7 +94,7 @@ export function createMiniOxygenDevEnvironment(
         toMiniflareRequest(request),
       );
 
-      return new Response(response.body as ReadableStream | null, {
+      return new Response(response.body as unknown as BodyInit, {
         status: response.status,
         statusText: response.statusText,
         headers: Array.from(response.headers.entries()),
@@ -123,8 +123,7 @@ export function createMiniOxygenDevEnvironment(
   async function warmup() {
     // Give Vite a brief moment to settle after listen/config reload before
     // sending the synthetic first request that boots MiniOxygen eagerly.
-    const WARMUP_SETTLE_DELAY_MS = 200;
-    await new Promise((resolve) => setTimeout(resolve, WARMUP_SETTLE_DELAY_MS));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     const viteUrl = viteDevServer && getViteUrl(viteDevServer);
     if (!viteUrl) return;

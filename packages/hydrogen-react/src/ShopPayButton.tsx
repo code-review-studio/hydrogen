@@ -68,7 +68,6 @@ function isChannel(
  * The `ShopPayButton` component renders a button that redirects to the Shop Pay checkout.
  * It renders a [`<shop-pay-button>`](https://shopify.dev/custom-storefronts/tools/web-components) custom element, for which it will lazy-load the source code automatically.
  * It relies on the `<ShopProvider>` context provider.
- * @publicDocs
  */
 export function ShopPayButton({
   channel,

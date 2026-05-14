@@ -67,25 +67,13 @@ export default defineConfig(({mode, isSsrBuild}) => {
       minify: false,
       emptyOutDir: false,
       rollupOptions: {
-        // @xstate/fsm must be bundled (not externalized) because it's an
-        // internal implementation detail of the cart state machine. With
-        // preserveModules, externalizing it produces a bare `import "@xstate/fsm"`
-        // in the dist — which fails in contexts where the package isn't directly
-        // resolvable (e.g. the CLI setup test, which symlinks skeleton's
-        // node_modules where pnpm strict isolation doesn't hoist transitive deps).
-        external: (id) => {
-          if (id.includes('@xstate/fsm')) return false;
-          return externals.includes(id);
-        },
+        external: externals,
         output: {
           // keep the folder structure of the components in the dist folder
           preserveModules: true,
           preserveModulesRoot: 'src',
         },
       },
-    },
-    ssr: {
-      noExternal: ['@xstate/fsm'],
     },
     define: {
       __HYDROGEN_DEV__: mode === 'devbuild' || mode === 'test',

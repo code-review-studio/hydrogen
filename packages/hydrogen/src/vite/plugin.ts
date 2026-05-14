@@ -125,6 +125,7 @@ export function hydrogen(pluginOptions: HydrogenPluginOptions = {}): Plugin[] {
             // Emit events for requests
             emitRequestEvent(
               {
+                __fromVite: true,
                 eventType: 'request',
                 url: request.url,
                 requestId: request.headers['request-id'],

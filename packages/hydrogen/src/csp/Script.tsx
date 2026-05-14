@@ -2,7 +2,6 @@ import {forwardRef, ScriptHTMLAttributes, HTMLAttributes} from 'react';
 import {useNonce} from './csp';
 import {useLoadScript} from '@shopify/hydrogen-react';
 
-/** @publicDocs */
 type ScriptProps = HydrogenScriptProps & ScriptAttributes;
 
 interface HydrogenScriptProps {
@@ -12,7 +11,6 @@ interface HydrogenScriptProps {
 
 interface ScriptAttributes extends ScriptHTMLAttributes<HTMLScriptElement> {}
 
-/** @publicDocs */
 export const Script = forwardRef<HTMLScriptElement, ScriptProps>(
   (props, ref) => {
     const {waitForHydration, src, ...rest} = props;

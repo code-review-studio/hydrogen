@@ -200,7 +200,7 @@ git show COMMIT_HASH --name-only | grep templates/skeleton | grep -v "CHANGELOG.
   ````bash
   echo <<EOF | base64 -w 0
   ```diff
-  pnpm dlx codemod remix/2/react-router/upgrade
+  npx codemod remix/2/react-router/upgrade
   ````
 
 - **Use git diff format** with `+` and `-` prefixes for changes
@@ -286,6 +286,7 @@ For packages that need to be removed during migration (like Remix → React Rout
 #### Framework Package Types (include only if changed in skeleton)
 
 - `@shopify/hydrogen` (usually changes with every major release)
+- `@shopify/remix-oxygen` (when framework changes)
 - React Router packages (`react-router`, `react-router-dom`, `@react-router/*`)
 - `@shopify/cli` (when CLI is updated)
 - `@shopify/mini-oxygen` (when dev server is updated)

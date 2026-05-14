@@ -26,7 +26,6 @@ function fillLocation(partial: Partial<Location> = {}) {
     search: '',
     hash: '',
     state: null,
-    unstable_mask: undefined,
     ...partial,
   };
 }

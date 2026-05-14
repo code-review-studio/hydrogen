@@ -45,7 +45,7 @@ const EVENT_MAP: Record<string, string> = {
   subrequest: 'Sub request',
 };
 
-// Canonical H2OEvent type used by the dev server log binding.
+// Make sure to match this type with the one in packages/remix-oxygen/src/event-logger.ts
 export type H2OEvent = {
   url: string;
   eventType: 'request' | 'subrequest';

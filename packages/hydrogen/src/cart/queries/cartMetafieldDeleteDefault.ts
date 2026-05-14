@@ -9,31 +9,23 @@ import type {
   MetafieldDeleteUserError,
   Scalars,
 } from '@shopify/hydrogen-react/storefront-api-types';
-import {
-  getInContextVariables,
-  getInContextDirective,
-  CartBuilderOptions,
-  shouldIncludeVisitorConsent,
-} from './cart-query-helpers';
 
 export type CartMetafieldDeleteFunction = (
   key: Scalars['String']['input'],
   optionalParams?: CartOptionalInput,
 ) => Promise<CartQueryDataReturn>;
 
-/** @publicDocs */
 export function cartMetafieldDeleteDefault(
   options: CartQueryOptions,
 ): CartMetafieldDeleteFunction {
   return async (key, optionalParams) => {
     const ownerId = optionalParams?.cartId || options.getCartId();
-    const includeVisitorConsent = shouldIncludeVisitorConsent(optionalParams);
     const {cartMetafieldDelete, errors} = await options.storefront.mutate<{
       cartMetafieldDelete: {
         userErrors: MetafieldDeleteUserError[];
       };
       errors: StorefrontApiErrors;
-    }>(CART_METAFIELD_DELETE_MUTATION({includeVisitorConsent}), {
+    }>(CART_METAFIELD_DELETE_MUTATION(), {
       variables: {
         input: {
           ownerId,
@@ -54,14 +46,14 @@ export function cartMetafieldDeleteDefault(
   };
 }
 
-//! @see https://shopify.dev/docs/api/storefront/2026-04/mutations/cartMetafieldDelete
-export const CART_METAFIELD_DELETE_MUTATION = (
-  options: CartBuilderOptions = {},
-) => `#graphql
+//! @see https://shopify.dev/docs/api/storefront/2026-01/mutations/cartMetafieldDelete
+export const CART_METAFIELD_DELETE_MUTATION = () => `#graphql
   mutation cartMetafieldDelete(
     $input: CartMetafieldDeleteInput!
-    ${getInContextVariables(options.includeVisitorConsent)}
-  ) ${getInContextDirective(options.includeVisitorConsent)} {
+    $language: LanguageCode
+    $country: CountryCode
+    $visitorConsent: VisitorConsent
+  ) @inContext(country: $country, language: $language, visitorConsent: $visitorConsent) {
     cartMetafieldDelete(input: $input) {
       userErrors {
         code

@@ -83,7 +83,7 @@ test.describe('Privacy Banner - Consent Change', () => {
       storefront.expectNoMonorailRequests();
 
       // 11. Navigate to a product page to verify no tracking on navigation
-      await storefront.navigateToInStockProduct();
+      await storefront.navigateToFirstProduct();
 
       // Still no analytics requests after navigation
       storefront.expectNoMonorailRequests();
@@ -198,7 +198,7 @@ test.describe('Privacy Banner - Consent Change', () => {
 
       // 11. Navigate to a product page
       await storefront.finalizePerfKitMetrics();
-      await storefront.navigateToInStockProduct();
+      await storefront.navigateToFirstProduct();
 
       // Note: We skip perf-kit request verification here because it captures Y/S values
       // only when its script is first downloaded so it won't update the values after changing

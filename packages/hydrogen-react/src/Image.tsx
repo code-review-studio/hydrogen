@@ -45,7 +45,6 @@ export type Loader = (params: LoaderParams) => string;
  */
 type Crop = 'center' | 'top' | 'bottom' | 'left' | 'right';
 
-/** @publicDocs */
 export type HydrogenImageProps = React.ComponentPropsWithRef<'img'> &
   HydrogenImageBaseProps;
 
@@ -67,7 +66,7 @@ type HydrogenImageBaseProps = {
    * @defaultValue `center`
    */
   crop?: Crop;
-  /** Data mapping to the [Storefront API `Image`](https://shopify.dev/docs/api/storefront/2026-04/objects/Image) object. Must be an Image object.
+  /** Data mapping to the [Storefront API `Image`](https://shopify.dev/docs/api/storefront/2026-01/objects/Image) object. Must be an Image object.
    *
    * @example
    * ```
@@ -149,7 +148,6 @@ export const IMAGE_FRAGMENT = `#graphql
  * ```
  *
  * {@link https://shopify.dev/docs/api/hydrogen-react/components/image}
- * @publicDocs
  */
 export const Image = React.forwardRef<HTMLImageElement, HydrogenImageProps>(
   (

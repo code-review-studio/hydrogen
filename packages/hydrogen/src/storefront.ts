@@ -57,12 +57,7 @@ import {
   type StackInfo,
 } from './utils/callsites';
 import type {WaitUntil, StorefrontHeaders} from './types';
-import {
-  extractHeaders,
-  getSafePathname,
-  MCP_RE,
-  SFAPI_RE,
-} from './utils/request';
+import {extractHeaders, getSafePathname, SFAPI_RE} from './utils/request';
 import {
   appendServerTimingHeader,
   extractServerTimingHeader,
@@ -179,10 +174,6 @@ export type Storefront<TI18n extends I18nBase = I18nBase> = {
    */
   isStorefrontApiUrl: (request: {url?: string}) => boolean;
   /**
-   * Checks if the request URL matches the Storefront MCP endpoint.
-   */
-  isMcpUrl: (request: {url?: string}) => boolean;
-  /**
    * Forwards the request to the Storefront API.
    * It reads the API version from the request URL.
    */
@@ -190,10 +181,6 @@ export type Storefront<TI18n extends I18nBase = I18nBase> = {
     request: Request,
     options?: Pick<StorefrontCommonExtraParams, 'storefrontApiVersion'>,
   ) => Promise<Response>;
-  /**
-   * Forwards the request to the Storefront MCP endpoint.
-   */
-  forwardMcp: (request: Request) => Promise<Response>;
   /**
    * Sets the collected subrequest headers in the response.
    * Useful to forward the cookies and server-timing headers
@@ -238,10 +225,9 @@ const defaultI18n: I18nBase = {
 };
 
 /**
- *  This function extends `createStorefrontClient` from [Hydrogen React](/docs/api/hydrogen-react/2026-04/utilities/createstorefrontclient). The additional arguments enable internationalization (i18n), caching, and other features particular to Remix and Oxygen.
+ *  This function extends `createStorefrontClient` from [Hydrogen React](/docs/api/hydrogen-react/2026-01/utilities/createstorefrontclient). The additional arguments enable internationalization (i18n), caching, and other features particular to Remix and Oxygen.
  *
  *  Learn more about [data fetching in Hydrogen](/docs/custom-storefronts/hydrogen/data-fetching/fetch-data).
- * @publicDocs
  */
 export function createStorefrontClient<TI18n extends I18nBase>(
   options: CreateStorefrontClientOptions<TI18n>,
@@ -624,78 +610,6 @@ export function createStorefrontClient<TI18n extends I18nBase>(
         return new Response(sfapiResponse.body, sfapiResponse);
       },
 
-      /**
-       * Checks if the request is targeting the Storefront MCP endpoint.
-       */
-      isMcpUrl(request) {
-        return MCP_RE.test(getSafePathname(request.url ?? ''));
-      },
-
-      /**
-       * Forwards the request to the Storefront MCP endpoint.
-       * CORS headers are intentionally omitted — the Storefront MCP
-       * server is server-to-server only (OPTIONS preflight returns 404).
-       */
-      async forwardMcp(request) {
-        const forwardedHeaders = new Headers([
-          ...extractHeaders(
-            (key) => request.headers.get(key),
-            [
-              'accept',
-              'accept-encoding',
-              'accept-language',
-              'content-type',
-              'cookie',
-              'origin',
-              'referer',
-              'user-agent',
-            ],
-          ),
-          ...extractHeaders(
-            (key) => defaultHeaders[key],
-            [
-              SHOPIFY_CLIENT_IP_HEADER,
-              SHOPIFY_CLIENT_IP_SIG_HEADER,
-              STOREFRONT_ACCESS_TOKEN_HEADER,
-              STOREFRONT_REQUEST_GROUP_ID_HEADER,
-              SHOPIFY_STOREFRONT_ID_HEADER,
-            ],
-          ),
-        ]);
-
-        if (storefrontHeaders?.buyerIp) {
-          forwardedHeaders.set('x-forwarded-for', storefrontHeaders.buyerIp);
-        }
-
-        const mcpUrl = `${getShopifyDomain()}/api/mcp`;
-
-        try {
-          const mcpResponse = await fetch(mcpUrl, {
-            method: request.method,
-            body: request.body,
-            headers: forwardedHeaders,
-          });
-
-          return new Response(mcpResponse.body, mcpResponse);
-        } catch (error) {
-          const JSON_RPC_INTERNAL_ERROR = -32603;
-          const message =
-            error instanceof Error ? error.message : 'Internal proxy error';
-
-          return new Response(
-            JSON.stringify({
-              jsonrpc: '2.0',
-              error: {code: JSON_RPC_INTERNAL_ERROR, message},
-              id: null,
-            }),
-            {
-              status: 502,
-              headers: {'content-type': 'application/json'},
-            },
-          );
-        }
-      },
-
       setCollectedSubrequestHeaders: (response: {headers: Headers}) => {
         // Forward cookies
         if (collectedSubrequestHeaders) {
@@ -781,7 +695,6 @@ export function formatAPIResult<T>(
   };
 }
 
-/** @publicDocs */
 export type CreateStorefrontClientForDocs<TI18n extends I18nBase> = {
   storefront?: StorefrontForDoc<TI18n>;
 };
@@ -809,19 +722,19 @@ export type StorefrontForDoc<TI18n extends I18nBase = I18nBase> = {
   CacheCustom?: typeof CacheCustom;
   /** Re-export of [`generateCacheControlHeader`](/docs/api/hydrogen/utilities/generatecachecontrolheader). */
   generateCacheControlHeader?: typeof generateCacheControlHeader;
-  /** Returns an object that contains headers that are needed for each query to Storefront API GraphQL endpoint. See [`getPublicTokenHeaders` in Hydrogen React](/docs/api/hydrogen-react/2026-04/utilities/createstorefrontclient#:~:text=%27graphql%27.-,getPublicTokenHeaders,-(props%3F%3A) for more details. */
+  /** Returns an object that contains headers that are needed for each query to Storefront API GraphQL endpoint. See [`getPublicTokenHeaders` in Hydrogen React](/docs/api/hydrogen-react/2026-01/utilities/createstorefrontclient#:~:text=%27graphql%27.-,getPublicTokenHeaders,-(props%3F%3A) for more details. */
   getPublicTokenHeaders?: ReturnType<
     typeof createStorefrontUtilities
   >['getPublicTokenHeaders'];
-  /** Returns an object that contains headers that are needed for each query to Storefront API GraphQL endpoint for API calls made from a server. See [`getPrivateTokenHeaders` in  Hydrogen React](/docs/api/hydrogen-react/2026-04/utilities/createstorefrontclient#:~:text=storefrontApiVersion-,getPrivateTokenHeaders,-(props%3F%3A) for more details.*/
+  /** Returns an object that contains headers that are needed for each query to Storefront API GraphQL endpoint for API calls made from a server. See [`getPrivateTokenHeaders` in  Hydrogen React](/docs/api/hydrogen-react/2026-01/utilities/createstorefrontclient#:~:text=storefrontApiVersion-,getPrivateTokenHeaders,-(props%3F%3A) for more details.*/
   getPrivateTokenHeaders?: ReturnType<
     typeof createStorefrontUtilities
   >['getPrivateTokenHeaders'];
-  /** Creates the fully-qualified URL to your myshopify.com domain. See [`getShopifyDomain` in  Hydrogen React](/docs/api/hydrogen-react/2026-04/utilities/createstorefrontclient#:~:text=StorefrontClientReturn-,getShopifyDomain,-(props%3F%3A) for more details. */
+  /** Creates the fully-qualified URL to your myshopify.com domain. See [`getShopifyDomain` in  Hydrogen React](/docs/api/hydrogen-react/2026-01/utilities/createstorefrontclient#:~:text=StorefrontClientReturn-,getShopifyDomain,-(props%3F%3A) for more details. */
   getShopifyDomain?: ReturnType<
     typeof createStorefrontUtilities
   >['getShopifyDomain'];
-  /** Creates the fully-qualified URL to your store's GraphQL endpoint. See [`getStorefrontApiUrl` in  Hydrogen React](/docs/api/hydrogen-react/2026-04/utilities/createstorefrontclient#:~:text=storeDomain-,getStorefrontApiUrl,-(props%3F%3A) for more details.*/
+  /** Creates the fully-qualified URL to your store's GraphQL endpoint. See [`getStorefrontApiUrl` in  Hydrogen React](/docs/api/hydrogen-react/2026-01/utilities/createstorefrontclient#:~:text=storeDomain-,getStorefrontApiUrl,-(props%3F%3A) for more details.*/
   getApiUrl?: ReturnType<
     typeof createStorefrontUtilities
   >['getStorefrontApiUrl'];

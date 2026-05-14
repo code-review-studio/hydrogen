@@ -33,7 +33,6 @@ type SeoWrapper = undefined | {seo: any};
 
 /**
  * @deprecated - use `getSeoMeta` instead
- * @publicDocs
  */
 export function Seo({debug}: SeoProps) {
   const matches = useMatches();

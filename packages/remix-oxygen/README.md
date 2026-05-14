@@ -1,14 +1,5 @@
-# @shopify/remix-oxygen (Deprecated)
+# @shopify/remix-oxygen
 
-> **This package is deprecated.** All types and utilities it re-exports are available directly from [`react-router`](https://reactrouter.com). For `createRequestHandler`, use [`@shopify/hydrogen`](https://shopify.dev/docs/storefronts/headless/hydrogen). For `getStorefrontHeaders`, use `@shopify/hydrogen/oxygen`.
+A Remix adapter for the [Oxygen runtime](https://shopify.dev/custom-storefronts/oxygen). The adapter is meant to work with Hydrogen. Hydrogen is a set of tools, utilities, and best-in-class examples for building a commerce application with [Remix](https://wwww.remix.run).
 
-## Migration
-
-Replace imports from `@shopify/remix-oxygen` as follows:
-
-| Before                                                          | After                                                           |
-| --------------------------------------------------------------- | --------------------------------------------------------------- |
-| `import type {LoaderFunctionArgs} from '@shopify/remix-oxygen'` | `import type {LoaderFunctionArgs} from 'react-router'`          |
-| `import {redirect} from '@shopify/remix-oxygen'`                | `import {redirect} from 'react-router'`                         |
-| `import {createRequestHandler} from '@shopify/remix-oxygen'`    | `import {createRequestHandler} from '@shopify/hydrogen'`        |
-| `import {getStorefrontHeaders} from '@shopify/remix-oxygen'`    | `import {getStorefrontHeaders} from '@shopify/hydrogen/oxygen'` |
+[Check out the docs](https://shopify.dev/custom-storefronts/hydrogen)
