@@ -1,6 +1,6 @@
 /**
  * All the code in this file is executed in workerd. This file
- * is compiled at build time (tsup) to be transpiled to JS, and
+ * is compiled at build time (tsdown) to be transpiled to JS, and
  * then loaded as string in a workerd instance at runtime as
  * the worker entrypoint. It then requests modules to Vite
  * and evaluates them to run the app's backend code.
@@ -112,10 +112,8 @@ function fetchEntryModule(env: ViteEnv) {
               payload.event === 'vite:invoke' &&
               isViteInvokePayload(payload.data)
             ) {
-              // TODO: Remove this shim when Vite 6 support is dropped.
               // workerd has no Node builtins; return empty list directly
               // so Vite 6 servers (which have no getBuiltins handler) still work.
-              // Vite 7+ handles getBuiltins internally.
               if (payload.data.name === 'getBuiltins') {
                 return Promise.resolve({result: []});
               }

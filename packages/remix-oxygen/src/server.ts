@@ -11,7 +11,6 @@ Error.prototype.toString = function () {
   return this.stack || originalErrorToString.call(this);
 };
 
-/** @deprecated Use `createRequestHandler` from `@shopify/hydrogen/oxygen` instead. */
 export function createRequestHandler<Context = unknown>({
   build,
   mode,
@@ -40,7 +39,7 @@ export function createRequestHandler<Context = unknown>({
       return new Response(null, {
         status: 301,
         headers: {
-          location: url.pathname.replace(/\/+/g, '/') + url.search,
+          location: url.pathname.replace(/\/+/g, '/'),
         },
       });
     }
@@ -90,7 +89,6 @@ type StorefrontHeaders = {
   purpose: string | null;
 };
 
-/** @deprecated Use `getStorefrontHeaders` from `@shopify/hydrogen/oxygen` instead. */
 export function getStorefrontHeaders(request: Request): StorefrontHeaders {
   const headers = request.headers;
   return {

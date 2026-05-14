@@ -7,18 +7,18 @@ The Hydrogen Cookbook transforms the skeleton template into specific scenarios t
 ## Quick Reference
 
 ```bash
-pnpm run cookbook -- validate                    # Validate all recipes
-pnpm run cookbook -- validate --recipe {name}    # Validate one recipe
-pnpm run cookbook -- apply --recipe {name}       # Apply recipe to skeleton
-pnpm run cookbook -- generate --recipe {name}    # Generate recipe from changes
-pnpm run cookbook -- render                      # Render all documentation
+npm run cookbook -- validate                    # Validate all recipes
+npm run cookbook -- validate --recipe {name}    # Validate one recipe
+npm run cookbook -- apply --recipe {name}       # Apply recipe to skeleton
+npm run cookbook -- generate --recipe {name}    # Generate recipe from changes
+npm run cookbook -- render                      # Render all documentation
 ```
 
 ## IMPORTANT: Critical Rules
 
 **YOU MUST validate before committing:**
 ```bash
-pnpm run cookbook -- validate --recipe {name}
+npm run cookbook -- validate --recipe {name}
 ```
 
 **Recipe requirements:**
@@ -31,7 +31,7 @@ pnpm run cookbook -- validate --recipe {name}
 
 **After modifying recipe.yaml, regenerate docs:**
 ```bash
-pnpm run cookbook -- render --recipe {name}
+npm run cookbook -- render --recipe {name}
 ```
 
 ## Common Errors
@@ -52,7 +52,7 @@ pnpm run cookbook -- render --recipe {name}
 ```
 **Fix**: Regenerate documentation:
 ```bash
-pnpm run cookbook -- render --recipe {name}
+npm run cookbook -- render --recipe {name}
 ```
 
 ### Orphaned Files
@@ -79,13 +79,13 @@ pnpm run cookbook -- render --recipe {name}
 
 ```bash
 # Run all cookbook tests
-pnpm test
+npm test
 
 # Run validation tests only
-pnpm test -- validate.test.ts
+npm test -- validate.test.ts
 
 # Full validation pipeline (what CI runs)
-pnpm run cookbook -- validate --recipe {name}
+npm run cookbook -- validate --recipe {name}
 ```
 
 ## Architecture
@@ -119,7 +119,7 @@ cookbook/
 Apply recipe to skeleton template.
 
 ```bash
-pnpm run cookbook -- apply --recipe infinite-scroll
+npm run cookbook -- apply --recipe infinite-scroll
 ```
 
 **Options:**
@@ -135,13 +135,13 @@ Generate recipe from skeleton template changes.
 
 ```bash
 # Generate from all changes
-pnpm run cookbook -- generate --recipe my-feature
+npm run cookbook -- generate --recipe my-feature
 
 # Generate from specific file only
-pnpm run cookbook -- generate --recipe my-feature --filePath app/routes/products.tsx
+npm run cookbook -- generate --recipe my-feature --filePath app/routes/products.tsx
 
 # Generate against different branch
-pnpm run cookbook -- generate --recipe hotfix --referenceBranch origin/2025-01
+npm run cookbook -- generate --recipe hotfix --referenceBranch origin/2025-01
 ```
 
 **Options:**
@@ -169,13 +169,13 @@ Validate recipe integrity and functionality.
 
 ```bash
 # Validate all recipes
-pnpm run cookbook -- validate
+npm run cookbook -- validate
 
 # Validate single recipe
-pnpm run cookbook -- validate --recipe infinite-scroll
+npm run cookbook -- validate --recipe infinite-scroll
 
 # Validate against specific Hydrogen version
-pnpm run cookbook -- validate --recipe my-recipe --hydrogenPackagesVersion 2025.1.0
+npm run cookbook -- validate --recipe my-recipe --hydrogenPackagesVersion 2025.1.0
 ```
 
 **Options:**
@@ -185,7 +185,7 @@ pnpm run cookbook -- validate --recipe my-recipe --hydrogenPackagesVersion 2025.
 **Pipeline:**
 1. Schema validation → Verifies recipe.yaml
 2. Recipe application → Applies to skeleton
-3. Dependency installation → pnpm install
+3. Dependency installation → npm install
 4. TypeScript check → Verifies types
 5. Build → Ensures project builds
 6. Cleanup → Resets skeleton
@@ -195,7 +195,7 @@ pnpm run cookbook -- validate --recipe my-recipe --hydrogenPackagesVersion 2025.
 ❌ Recipe 'gtm' - 5 error(s):
 
 recipe.yaml:52      steps.0.step                  RecipeSchema: Invalid input: expected string, received number (actual value: 1)
-                    README.md                     validateReadmeExists: README.md not found. Run: pnpm run cookbook render gtm
+                    README.md                     validateReadmeExists: README.md not found. Run: npm run cookbook render gtm
 ```
 
 ---
@@ -206,10 +206,10 @@ Generate README documentation from recipe.yaml.
 
 ```bash
 # Render all recipes (GitHub format)
-pnpm run cookbook -- render
+npm run cookbook -- render
 
 # Render single recipe for shopify.dev
-pnpm run cookbook -- render --recipe infinite-scroll --format shopify.dev
+npm run cookbook -- render --recipe infinite-scroll --format shopify.dev
 ```
 
 **Options:**
@@ -230,13 +230,13 @@ Complete refresh: apply → generate → render.
 
 ```bash
 # Regenerate single recipe
-pnpm run cookbook -- regenerate --recipe infinite-scroll --format github
+npm run cookbook -- regenerate --recipe infinite-scroll --format github
 
 # Regenerate all recipes
-pnpm run cookbook -- regenerate --format github
+npm run cookbook -- regenerate --format github
 
 # Regenerate files only (preserve manual recipe.yaml edits)
-pnpm run cookbook -- regenerate --recipe my-recipe --onlyFiles --format github
+npm run cookbook -- regenerate --recipe my-recipe --onlyFiles --format github
 ```
 
 **Options:**
@@ -255,10 +255,10 @@ Update recipe to remain compatible with latest main branch.
 
 ```bash
 # Update recipe to latest main
-pnpm run cookbook -- update --recipe infinite-scroll
+npm run cookbook -- update --recipe infinite-scroll
 
 # Update against specific branch
-pnpm run cookbook -- update --recipe legacy-feature --referenceBranch origin/2024-12
+npm run cookbook -- update --recipe legacy-feature --referenceBranch origin/2024-12
 ```
 
 **Options:**
@@ -283,7 +283,7 @@ pnpm run cookbook -- update --recipe legacy-feature --referenceBranch origin/202
 Generate JSON schema from Zod definitions for recipe.yaml validation and IDE support.
 
 ```bash
-pnpm run cookbook -- schema
+npm run cookbook -- schema
 ```
 
 **Result**: Updated recipe.schema.json
@@ -294,18 +294,18 @@ pnpm run cookbook -- schema
 
 ```bash
 # New recipe development
-pnpm run cookbook -- generate --recipe my-feature
-pnpm run cookbook -- validate --recipe my-feature
-pnpm run cookbook -- render --recipe my-feature
+npm run cookbook -- generate --recipe my-feature
+npm run cookbook -- validate --recipe my-feature
+npm run cookbook -- render --recipe my-feature
 
 # Recipe maintenance
-pnpm run cookbook -- update --recipe existing-feature
-pnpm run cookbook -- validate --recipe existing-feature
+npm run cookbook -- update --recipe existing-feature
+npm run cookbook -- validate --recipe existing-feature
 
 # Bulk operations
-pnpm run cookbook -- validate
-pnpm run cookbook -- render
-pnpm run cookbook -- regenerate --format github
+npm run cookbook -- validate
+npm run cookbook -- render
+npm run cookbook -- regenerate --format github
 ```
 
 ## Recipe YAML Structure
@@ -332,7 +332,7 @@ steps:
 ## Repository Etiquette
 
 **Before committing recipes:**
-1. Run validation: `pnpm run cookbook -- validate --recipe {name}`
+1. Run validation: `npm run cookbook -- validate --recipe {name}`
 2. Fix all errors before pushing
 3. Include recipe changes in PR descriptions
 4. Update LLM prompts when recipe logic changes

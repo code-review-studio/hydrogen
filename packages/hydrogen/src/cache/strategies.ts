@@ -46,7 +46,6 @@ const optionMapping: {
   staleIfError: 'stale-if-error',
 };
 
-/** @publicDocs */
 export function generateCacheControlHeader(
   cacheOptions: CachingStrategy,
 ): string {
@@ -66,7 +65,6 @@ export function generateCacheControlHeader(
 /**
  *
  * @public
- * @publicDocs
  */
 export function CacheNone(): NoStoreStrategy {
   return {
@@ -87,7 +85,6 @@ function guardExpirableModeType(overrideOptions?: CachingStrategy) {
 /**
  *
  * @public
- * @publicDocs
  */
 export function CacheShort(overrideOptions?: CachingStrategy): AllCacheOptions {
   guardExpirableModeType(overrideOptions);
@@ -102,7 +99,6 @@ export function CacheShort(overrideOptions?: CachingStrategy): AllCacheOptions {
 /**
  *
  * @public
- * @publicDocs
  */
 export function CacheLong(overrideOptions?: CachingStrategy): AllCacheOptions {
   guardExpirableModeType(overrideOptions);
@@ -133,7 +129,6 @@ export function CacheDefault(
 /**
  *
  * @public
- * @publicDocs
  */
 export function CacheCustom(overrideOptions: CachingStrategy): AllCacheOptions {
   return overrideOptions as AllCacheOptions;

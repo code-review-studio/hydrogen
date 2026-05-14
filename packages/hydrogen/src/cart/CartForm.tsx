@@ -346,7 +346,6 @@ type CartFormProps = CartActionInputProps & CartFormCommonProps;
 
 const INPUT_NAME = 'cartFormInput';
 
-/** @publicDocs */
 export function CartForm({
   children,
   action,

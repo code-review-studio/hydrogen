@@ -353,7 +353,7 @@
         },
         "force": {
           "char": "f",
-          "description": "Forces a deployment to proceed if there are uncommitted changes in its Git repository.",
+          "description": "Forces a deployment to proceed if there are uncommited changes in its Git repository.",
           "env": "SHOPIFY_HYDROGEN_FLAG_FORCE",
           "name": "force",
           "required": false,
@@ -437,7 +437,7 @@
           "type": "option"
         },
         "metadata-description": {
-          "description": "Description of the changes in the deployment. Defaults to the commit message of the latest commit if there are no uncommitted changes.",
+          "description": "Description of the changes in the deployment. Defaults to the commit message of the latest commit if there are no uncommited changes.",
           "env": "SHOPIFY_HYDROGEN_FLAG_METADATA_DESCRIPTION",
           "name": "metadata-description",
           "required": false,
@@ -832,7 +832,7 @@
       "aliases": [],
       "args": {
         "routeName": {
-          "description": "The route to generate. One of home,page,cart,products,collections,policies,blogs,account,search,robots,sitemap,all.",
+          "description": "The route to generate. One of home,page,cart,products,collections,policies,blogs,account,search,robots,sitemap,tokenlessApi,all.",
           "name": "routeName",
           "options": [
             "home",
@@ -846,6 +846,7 @@
             "search",
             "robots",
             "sitemap",
+            "tokenlessApi",
             "all"
           ],
           "required": true
@@ -854,7 +855,7 @@
       "description": "Generates a standard Shopify route.",
       "flags": {
         "adapter": {
-          "description": "React Router adapter used in the route. The default is `react-router`.",
+          "description": "Remix adapter used in the route. The default is `@shopify/remix-oxygen`.",
           "env": "SHOPIFY_HYDROGEN_FLAG_ADAPTER",
           "name": "adapter",
           "hasDynamicHelp": false,
@@ -917,7 +918,7 @@
       "description": "Generates all supported standard shopify routes.",
       "flags": {
         "adapter": {
-          "description": "React Router adapter used in the route. The default is `react-router`.",
+          "description": "Remix adapter used in the route. The default is `@shopify/remix-oxygen`.",
           "env": "SHOPIFY_HYDROGEN_FLAG_ADAPTER",
           "name": "adapter",
           "hasDynamicHelp": false,
@@ -1675,5 +1676,5 @@
       ]
     }
   },
-  "version": "11.1.16"
+  "version": "11.1.11"
 }

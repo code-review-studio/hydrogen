@@ -4,8 +4,8 @@ import {
   customerAccountApiCustomScalars,
 } from './src/codegen.helpers';
 
-const SF_API_VERSION = '2026-04';
-const CA_API_VERSION = '2026-04';
+const SF_API_VERSION = '2026-01';
+const CA_API_VERSION = '2026-01';
 
 const storefrontAPISchema: CodegenConfig['schema'] = {
   [`https://hydrogen-preview.myshopify.com/api/${SF_API_VERSION}/graphql.json`]:
@@ -36,7 +36,7 @@ const config: CodegenConfig = {
               /**
                * THIS FILE IS AUTO-GENERATED, DO NOT EDIT
                * Based on Storefront API ${SF_API_VERSION}
-               * If changes need to happen to the types defined in this file, then generally the Storefront API needs to update. After it's updated, you can run \`pnpm run graphql-types\`.
+               * If changes need to happen to the types defined in this file, then generally the Storefront API needs to update. After it's updated, you can run \`npm run graphql-types\`.
                * Except custom Scalars, which are defined in the \`codegen.ts\` file
                */
               /* eslint-disable */`,
@@ -75,7 +75,7 @@ const config: CodegenConfig = {
               /**
                * THIS FILE IS AUTO-GENERATED, DO NOT EDIT
                * Based on Customer Account API ${CA_API_VERSION}
-               * If changes need to happen to the types defined in this file, then generally the Storefront API needs to update. After it's updated, you can run \`pnpm run graphql-types\`.
+               * If changes need to happen to the types defined in this file, then generally the Storefront API needs to update. After it's updated, you can run \`npm run graphql-types\`.
                * Except custom Scalars, which are defined in the \`codegen.ts\` file
                */
               /* eslint-disable */`,

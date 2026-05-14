@@ -11,12 +11,6 @@ import type {
   CartQueryDataReturn,
   CartQueryOptions,
 } from './cart-types';
-import {
-  getInContextVariables,
-  getInContextDirective,
-  CartBuilderOptions,
-  shouldIncludeVisitorConsent,
-} from './cart-query-helpers';
 
 export type CartDeliveryAddressesUpdateFunction = (
   addresses: Array<CartSelectableAddressUpdateInput>,
@@ -60,7 +54,6 @@ export type CartDeliveryAddressesUpdateFunction = (
       "validationStrategy": "COUNTRY_CODE_ONLY"
     }
   ],{ someOptionalParam: 'value' });
- * @publicDocs
  */
 export function cartDeliveryAddressesUpdateDefault(
   options: CartQueryOptions,
@@ -69,23 +62,17 @@ export function cartDeliveryAddressesUpdateDefault(
     addresses: Array<CartSelectableAddressUpdateInput>,
     optionalParams,
   ) => {
-    const includeVisitorConsent = shouldIncludeVisitorConsent(optionalParams);
     const {cartDeliveryAddressesUpdate, errors} =
       await options.storefront.mutate<{
         cartDeliveryAddressesUpdate: CartQueryData;
         errors: StorefrontApiErrors;
-      }>(
-        CART_DELIVERY_ADDRESSES_UPDATE_MUTATION(options.cartFragment, {
-          includeVisitorConsent,
-        }),
-        {
-          variables: {
-            cartId: options.getCartId(),
-            addresses,
-            ...optionalParams,
-          },
+      }>(CART_DELIVERY_ADDRESSES_UPDATE_MUTATION(options.cartFragment), {
+        variables: {
+          cartId: options.getCartId(),
+          addresses,
+          ...optionalParams,
         },
-      );
+      });
 
     return formatAPIResult(cartDeliveryAddressesUpdate, errors);
   };
@@ -94,13 +81,14 @@ export function cartDeliveryAddressesUpdateDefault(
 //! @see: https://shopify.dev/docs/api/storefront/latest/mutations/cartDeliveryAddressesUpdate
 export const CART_DELIVERY_ADDRESSES_UPDATE_MUTATION = (
   cartFragment = MINIMAL_CART_FRAGMENT,
-  options: CartBuilderOptions = {},
 ) => `#graphql
   mutation cartDeliveryAddressesUpdate(
     $cartId: ID!
     $addresses: [CartSelectableAddressUpdateInput!]!,
-    ${getInContextVariables(options.includeVisitorConsent)}
-  ) ${getInContextDirective(options.includeVisitorConsent)} {
+    $country: CountryCode = ZZ
+    $language: LanguageCode
+    $visitorConsent: VisitorConsent
+  ) @inContext(country: $country, language: $language, visitorConsent: $visitorConsent) {
     cartDeliveryAddressesUpdate(addresses: $addresses, cartId: $cartId) {
       cart {
         ...CartApiMutation

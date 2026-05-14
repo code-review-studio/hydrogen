@@ -36,14 +36,10 @@ import {useShop} from './ShopifyProvider.js';
 export const CartContext = createContext<CartWithActions | null>(null);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-/**
- * `useCart` hook must be a descendent of a `CartProvider` component.
- * @publicDocs */
-export type UseCartDocs = () => CartWithActionsDocs;
+type UseCartDocs = () => CartWithActionsDocs;
 
 /**
  * The `useCart` hook provides access to the cart object. It must be a descendent of a `CartProvider` component.
- * @publicDocs
  */
 export function useCart(): CartWithActions {
   const context = useContext(CartContext);
@@ -92,9 +88,9 @@ type CartProviderProps = {
   onAttributesUpdateComplete?: () => void;
   /** A callback that is invoked when the process to update the cart discount codes completes */
   onDiscountCodesUpdateComplete?: () => void;
-  /** An object with fields that correspond to the Storefront API's [Cart object](https://shopify.dev/api/storefront/2026-04/objects/cart). */
+  /** An object with fields that correspond to the Storefront API's [Cart object](https://shopify.dev/api/storefront/2026-01/objects/cart). */
   data?: PartialDeep<CartType, {recurseIntoArrays: true}>;
-  /** A fragment used to query the Storefront API's [Cart object](https://shopify.dev/api/storefront/2026-04/objects/cart) for all queries and mutations. A default value is used if no argument is provided. */
+  /** A fragment used to query the Storefront API's [Cart object](https://shopify.dev/api/storefront/2026-01/objects/cart) for all queries and mutations. A default value is used if no argument is provided. */
   cartFragment?: string;
   /** A customer access token that's accessible on the server if there's a customer login. */
   customerAccessToken?: CartBuyerIdentityInput['customerAccessToken'];
@@ -113,7 +109,6 @@ type CartProviderProps = {
  * There are also props that trigger when a call to the Storefront API is completed, such as `onLineAddComplete={}` when the fetch request for adding a line to the cart completes.
  *
  * The `CartProvider` component must be a descendant of the `ShopifyProvider` component.
- * @publicDocs
  */
 export function CartProvider({
   children,

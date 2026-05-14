@@ -36,7 +36,6 @@ export function schemaWrapper(
  *  * const {id, resource} = parseGid('gid://shopify/Cart/abc123')
  * // => id = "abc123", resource = 'Cart'
  * ```
- * @publicDocs
  **/
 export function parseGid(gid: string | undefined): ShopifyGid {
   const defaultReturn: ShopifyGid = {

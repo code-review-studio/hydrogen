@@ -224,7 +224,6 @@ export type CartHandlerReturn<TCustomMethods extends CustomMethodsBase> =
   | HydrogenCartCustom<TCustomMethods>
   | HydrogenCart;
 
-/** @publicDocs */
 export function createCartHandler(options: CartHandlerOptions): HydrogenCart;
 export function createCartHandler<TCustomMethods extends CustomMethodsBase>(
   options: CartHandlerOptionsWithCustom<TCustomMethods>,
@@ -362,7 +361,6 @@ export function createCartHandler<TCustomMethods extends CustomMethodsBase>(
   }
 }
 
-/** @publicDocs */
 export type CartHandlerOptionsForDocs<
   TCustomMethods extends CustomMethodsBase,
 > = {
@@ -400,9 +398,6 @@ export type CartHandlerOptionsForDocs<
   buyerIdentity?: CartBuyerIdentityInput;
 };
 
-/**
- * The handler returns the following default methods. Any [custom](/docs/api/hydrogen/utilities/createcarthandler#example-custom-methods) or overwritten methods will also be available in the returned cart instance.
- * @publicDocs */
 export type HydrogenCartForDocs = {
   /**
    * Adds items to the cart.

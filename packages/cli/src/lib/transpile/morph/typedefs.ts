@@ -56,6 +56,7 @@ export function generateTypeDefs(sourceFile: SourceFile, code: string) {
 
   const knownGenerics: Record<string, string | undefined> = {
     MetaFunction: 'T',
+    SerializeFrom: 'T',
     Fetcher: 'T',
     PartialPredictiveSearchResult: 'ItemType, ExtraProps',
     PartialSearchResult: 'ItemType',
@@ -88,7 +89,7 @@ export function generateTypeDefs(sourceFile: SourceFile, code: string) {
 
     if (/(function loader\(|const loader =)/.test(source)) {
       typedefs.push(
-        `/** @typedef {ReturnType<typeof useLoaderData<typeof loader>>} LoaderReturnData */`,
+        `/** @typedef {import('@shopify/remix-oxygen').SerializeFrom<typeof loader>} LoaderReturnData */`,
       );
 
       code = code.replace(
@@ -115,7 +116,7 @@ export function generateTypeDefs(sourceFile: SourceFile, code: string) {
 
     if (/(function action\(|const action =)/.test(source)) {
       typedefs.push(
-        `/** @typedef {ReturnType<typeof useActionData<typeof action>>} ActionReturnData */`,
+        `/** @typedef {import('@shopify/remix-oxygen').SerializeFrom<typeof action>} ActionReturnData */`,
       );
 
       code = code.replace(

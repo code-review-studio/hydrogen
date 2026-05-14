@@ -224,7 +224,7 @@ The release workflow now operates with zero manual intervention:
 ### Semver Packages (X.Y.Z format)
 - `@shopify/cli-hydrogen`
 - `@shopify/mini-oxygen`
-- `@shopify/remix-oxygen` (deprecated — no longer actively versioned)
+- `@shopify/remix-oxygen`
 - All other packages
 
 ## Version Transformation Process
@@ -245,7 +245,7 @@ The CalVer system integrates with changesets through a two-step process:
 
 The transformation happens in the npm version script:
 ```json
-"version": "pnpm run version:changeset && node .changeset/enforce-calver-ci.js && pnpm run version:post && pnpm run format"
+"version": "npm run version:changeset && node .changeset/enforce-calver-ci.js && npm run version:post && npm run format"
 ```
 
 Execution order:
@@ -270,13 +270,13 @@ Major releases align with Shopify's API calendar:
 ### Unit Testing
 ```bash
 # Test CalVer comparison
-pnpm run test:calver
+npm run test:calver
 
 # Test with dry-run (reads actual changesets)
-pnpm run test:calver:dry
+npm run test:calver:dry
 
 # Test branch detection
-pnpm run test:calver:branch
+npm run test:calver:branch
 ```
 
 ### CI Testing
@@ -516,7 +516,7 @@ ls .changeset/*.md | xargs grep -l "major"
 **Solution**: Ensure the script runs after changesets
 ```bash
 # Correct order
-pnpm run version:changeset && node .changeset/enforce-calver-ci.js
+npm run version:changeset && node .changeset/enforce-calver-ci.js
 ```
 
 ### Issue: Changesets with single quotes not detected
@@ -583,7 +583,7 @@ rm .changeset/test-cli.md
 ### For Maintainers
 - **No more manual updates**: The `latestBranch` in release.yml is detected automatically
 - **Branch naming unchanged**: Still uses `YYYY-MM` format (e.g., `2025-05`)
-- **Changeset process unchanged**: Continue using `pnpm run changeset add`
+- **Changeset process unchanged**: Continue using `npm run changeset add`
 
 ### For Contributors
 - **No changes required**: Continue creating changesets as normal

@@ -11,7 +11,6 @@ import {generateNonce} from './nonce';
 export const NonceContext = createContext<string | undefined>(undefined);
 export const NonceProvider = NonceContext.Provider;
 
-/** @publicDocs */
 export const useNonce = () => useContext(NonceContext);
 
 type ContentSecurityPolicy = {
@@ -65,7 +64,6 @@ type ShopProp = {
 
 /**
  * @param directives - Pass custom [content security policy directives](https://content-security-policy.com/). This is important if you load content in your app from third-party domains.
- * @publicDocs
  */
 export function createContentSecurityPolicy(
   props?: CreateContentSecurityPolicy & ShopProp,

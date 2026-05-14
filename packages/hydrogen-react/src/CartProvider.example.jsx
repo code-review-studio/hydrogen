@@ -1,18 +1,16 @@
 import {CartProvider, useCart} from '@shopify/hydrogen-react';
 
 export function App() {
-  return (
-    <CartProvider
-      onLineAdd={() => {
-        console.log('a line is being added');
-      }}
-      onLineAddComplete={() => {
-        console.log('a line has been added');
-      }}
-    >
-      <CartComponent />
-    </CartProvider>
-  );
+  <CartProvider
+    onLineAdd={() => {
+      console.log('a line is being added');
+    }}
+    onLineAddComplete={() => {
+      console.log('a line has been added');
+    }}
+  >
+    <CartComponent />
+  </CartProvider>;
 }
 
 function CartComponent() {

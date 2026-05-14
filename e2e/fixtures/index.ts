@@ -33,7 +33,6 @@ export {CustomerAccountUtil} from './customer-account-utils';
 export {DeliveryAddressUtil} from './delivery-address-utils';
 export {SubscriptionsUtil} from './subscriptions-utils';
 export {LegacyCustomerAccountUtil} from './legacy-customer-account-utils';
-export {MultipassUtil} from './multipass-utils';
 
 export const CUSTOMER_ACCOUNT_STORAGE_STATE_PATH = path.resolve(
   __dirname,
@@ -209,7 +208,7 @@ export const configureDevServer = (options: DevServerLifecycleOptions) => {
       mockEnvDir = mockEnvFiles.mockEnvDir;
     }
 
-    const devServer = new DevServer({
+    server = new DevServer({
       storeKey,
       customerAccountPush: options.customerAccountPush ?? false,
       envFile: runtimeEnvFile,
@@ -219,8 +218,7 @@ export const configureDevServer = (options: DevServerLifecycleOptions) => {
       projectPath,
     });
 
-    await devServer.start();
-    server = devServer;
+    await server.start();
   });
 };
 

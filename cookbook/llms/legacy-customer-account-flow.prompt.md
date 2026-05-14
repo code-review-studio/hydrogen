@@ -164,7 +164,7 @@ Add an account link to the header navigation.
 
 Add an account activation route for email verification.
 
-#### File: [account_.activate.$id.$activationToken.tsx](https://github.com/Shopify/hydrogen/blob/1040066d20b52667756fd1ebffd8607602a735b4/cookbook/recipes/legacy-customer-account-flow/ingredients/templates/skeleton/app/routes/account_.activate.$id.$activationToken.tsx)
+#### File: [account_.activate.$id.$activationToken.tsx](https://github.com/Shopify/hydrogen/blob/4f5db289f8a9beb5c46dda9416a7ae8151f7e08e/cookbook/recipes/legacy-customer-account-flow/ingredients/templates/skeleton/app/routes/account_.activate.$id.$activationToken.tsx)
 
 ~~~tsx
 import {Form, useActionData, data, redirect} from 'react-router';
@@ -345,7 +345,7 @@ Update PageLayout to handle account routes.
 
 Add a password recovery form.
 
-#### File: [account_.recover.tsx](https://github.com/Shopify/hydrogen/blob/1040066d20b52667756fd1ebffd8607602a735b4/cookbook/recipes/legacy-customer-account-flow/ingredients/templates/skeleton/app/routes/account_.recover.tsx)
+#### File: [account_.recover.tsx](https://github.com/Shopify/hydrogen/blob/4f5db289f8a9beb5c46dda9416a7ae8151f7e08e/cookbook/recipes/legacy-customer-account-flow/ingredients/templates/skeleton/app/routes/account_.recover.tsx)
 
 ~~~tsx
 import {Form, Link, useActionData, data, redirect} from 'react-router';
@@ -608,7 +608,7 @@ Add customer access token validation to the root loader.
 
 Add a customer registration form.
 
-#### File: [account_.register.tsx](https://github.com/Shopify/hydrogen/blob/1040066d20b52667756fd1ebffd8607602a735b4/cookbook/recipes/legacy-customer-account-flow/ingredients/templates/skeleton/app/routes/account_.register.tsx)
+#### File: [account_.register.tsx](https://github.com/Shopify/hydrogen/blob/4f5db289f8a9beb5c46dda9416a7ae8151f7e08e/cookbook/recipes/legacy-customer-account-flow/ingredients/templates/skeleton/app/routes/account_.register.tsx)
 
 ~~~tsx
 import {Form, Link, useActionData, data, redirect} from 'react-router';
@@ -830,7 +830,7 @@ Convert the catch-all route to use Storefront API authentication.
  
 -// fallback wild card for all unauthenticated routes in account section
  export async function loader({context}: Route.LoaderArgs) {
--  await context.customerAccount.handleAuthStatus();
+-  context.customerAccount.handleAuthStatus();
 -
 -  return redirect('/account');
 +  if (await context.session.get('customerAccessToken')) {
@@ -844,7 +844,7 @@ Convert the catch-all route to use Storefront API authentication.
 
 Add a password reset form with token validation.
 
-#### File: [account_.reset.$id.$resetToken.tsx](https://github.com/Shopify/hydrogen/blob/1040066d20b52667756fd1ebffd8607602a735b4/cookbook/recipes/legacy-customer-account-flow/ingredients/templates/skeleton/app/routes/account_.reset.$id.$resetToken.tsx)
+#### File: [account_.reset.$id.$resetToken.tsx](https://github.com/Shopify/hydrogen/blob/4f5db289f8a9beb5c46dda9416a7ae8151f7e08e/cookbook/recipes/legacy-customer-account-flow/ingredients/templates/skeleton/app/routes/account_.reset.$id.$resetToken.tsx)
 
 ~~~tsx
 import {Form, useActionData, data, redirect} from 'react-router';
@@ -1019,7 +1019,7 @@ Convert address management to use Storefront API mutations.
  };
  
  export async function loader({context}: Route.LoaderArgs) {
--  await context.customerAccount.handleAuthStatus();
+-  context.customerAccount.handleAuthStatus();
 -
 +  const {session} = context;
 +  const customerAccessToken = await session.get('customerAccessToken');
@@ -1416,7 +1416,7 @@ Convert address management to use Storefront API mutations.
 -        <label htmlFor="territoryCode">Country Code*</label>
 +        <label htmlFor="country">Country*</label>
          <input
--          aria-label="Country code"
+-          aria-label="territoryCode"
 -          autoComplete="country"
 -          defaultValue={address?.territoryCode ?? ''}
 -          id="territoryCode"
@@ -2281,11 +2281,11 @@ Convert the customer profile page to use Storefront API queries.
  } from 'react-router';
  import type {Route} from './+types/account.profile';
  
-@@ -20,23 +20,40 @@ export const meta: Route.MetaFunction = () => {
+@@ -20,62 +20,79 @@ export const meta: Route.MetaFunction = () => {
  };
  
  export async function loader({context}: Route.LoaderArgs) {
--  await context.customerAccount.handleAuthStatus();
+-  context.customerAccount.handleAuthStatus();
 -
 +  const customerAccessToken = await context.session.get('customerAccessToken');
 +  if (!customerAccessToken) {
@@ -2312,21 +2312,22 @@ Convert the customer profile page to use Storefront API queries.
 +    const password = getPassword(form);
      const customer: CustomerUpdateInput = {};
 -    const validInputKeys = ['firstName', 'lastName'] as const;
-+    const acceptsMarketing = form.get('acceptsMarketing');
-+    if (acceptsMarketing !== null) {
-+      customer.acceptsMarketing = acceptsMarketing === 'on';
-+    }
-+
 +    const validInputKeys = [
 +      'firstName',
 +      'lastName',
 +      'email',
++      'password',
 +      'phone',
 +    ] as const;
      for (const [key, value] of form.entries()) {
        if (!validInputKeys.includes(key as any)) {
          continue;
-@@ -46,36 +63,37 @@ export async function action({request, context}: Route.ActionArgs) {
+       }
++      if (key === 'acceptsMarketing') {
++        customer.acceptsMarketing = value === 'on';
++      }
+       if (typeof value === 'string' && value.length) {
+         customer[key as (typeof validInputKeys)[number]] = value;
        }
      }
  
@@ -2386,7 +2387,7 @@ Convert the customer profile page to use Storefront API queries.
    }
  }
  
-@@ -114,6 +132,64 @@ export default function AccountProfile() {
+@@ -114,6 +131,64 @@ export default function AccountProfile() {
              defaultValue={customer.lastName ?? ''}
              minLength={2}
            />
@@ -2451,24 +2452,31 @@ Convert the customer profile page to use Storefront API queries.
          </fieldset>
          {action?.error ? (
            <p>
-@@ -131,3 +207,48 @@ export default function AccountProfile() {
+@@ -131,3 +206,55 @@ export default function AccountProfile() {
      </div>
    );
  }
 +
 +function getPassword(form: FormData): string | undefined {
++  let password;
 +  const newPassword = form.get('newPassword');
 +  const newPasswordConfirm = form.get('newPasswordConfirm');
 +
-+  if (!newPassword) {
-+    return undefined;
++  let passwordError;
++
++  if (newPassword && newPassword !== newPasswordConfirm) {
++    passwordError = new Error('New passwords must match.');
 +  }
 +
-+  if (newPassword !== newPasswordConfirm) {
-+    throw new Error('New passwords must match.');
++  if (passwordError) {
++    throw passwordError;
 +  }
 +
-+  return String(newPassword);
++  if (newPassword) {
++    password = newPassword;
++  }
++
++  return String(password);
 +}
 +
 +const CUSTOMER_UPDATE_MUTATION = `#graphql
@@ -2502,51 +2510,6 @@ Convert the customer profile page to use Storefront API queries.
 +` as const;
 ~~~
 
-### Step 13: package.json
-
-
-
-#### File: /package.json
-
-~~~diff
-@@ -14,12 +14,12 @@
-   },
-   "prettier": "@shopify/prettier-config",
-   "dependencies": {
--    "@shopify/hydrogen": "workspace:*",
-+    "@shopify/hydrogen": "2026.4.0",
-     "graphql": "^16.10.0",
-     "graphql-tag": "^2.12.6",
-     "isbot": "^5.1.22",
--    "react": "catalog:",
--    "react-dom": "catalog:",
-+    "react": "^18.3.1",
-+    "react-dom": "^18.3.1",
-     "react-router": "7.14.0",
-     "react-router-dom": "7.14.0"
-   },
-@@ -31,14 +31,14 @@
-     "@react-router/dev": "7.14.0",
-     "@react-router/fs-routes": "7.14.0",
-     "@shopify/cli": "3.93.2",
--    "@shopify/hydrogen-codegen": "workspace:*",
--    "@shopify/mini-oxygen": "workspace:*",
-+    "@shopify/hydrogen-codegen": "0.3.3",
-+    "@shopify/mini-oxygen": "4.0.2",
-     "@shopify/oxygen-workers-types": "^4.1.6",
--    "@shopify/prettier-config": "catalog:",
-+    "@shopify/prettier-config": "^1.1.2",
-     "@total-typescript/ts-reset": "^0.6.1",
-     "@types/eslint": "^9.6.1",
--    "@types/react": "catalog:",
--    "@types/react-dom": "catalog:",
-+    "@types/react": "^18.3.28",
-+    "@types/react-dom": "^18.3.7",
-     "@typescript-eslint/eslint-plugin": "^8.21.0",
-     "@typescript-eslint/parser": "^8.21.0",
-     "eslint": "^9.18.0",
-~~~
-
 ### Step 14: Update account layout for session auth
 
 Convert the account layout to use session-based authentication.
@@ -2554,7 +2517,7 @@ Convert the account layout to use session-based authentication.
 #### File: /app/routes/account.tsx
 
 ~~~diff
-@@ -1,42 +1,109 @@
+@@ -1,45 +1,105 @@
  import {
 -  data as remixData,
    Form,
@@ -2574,13 +2537,15 @@ Convert the account layout to use session-based authentication.
  
 -export async function loader({context}: Route.LoaderArgs) {
 -  const {customerAccount} = context;
--  const {data, errors} = await customerAccount.query(CUSTOMER_DETAILS_QUERY, {
--    variables: {
--      language: customerAccount.i18n.language,
+-  const {data, errors} = await customerAccount.query(
+-    CUSTOMER_DETAILS_QUERY,
+-    {
+-      variables: {
+-        language: customerAccount.i18n.language,
+-      },
 -    },
--  });
-+export const headers: Route.HeadersFunction = ({loaderHeaders}) =>
-+  loaderHeaders;
+-  );
++export const headers: Route.HeadersFunction = ({loaderHeaders}) => loaderHeaders;
  
 -  if (errors?.length || !data?.customer) {
 -    throw new Error('Customer not found');
@@ -2595,9 +2560,24 @@ Convert the account layout to use session-based authentication.
 +      pathname,
 +    );
 +
-+  if (!isLoggedIn && (isPrivateRoute || isAccountHome)) {
-+    session.unset('customerAccessToken');
-+    return redirect('/account/login');
++  if (!isLoggedIn) {
++    if (isPrivateRoute || isAccountHome) {
++      session.unset('customerAccessToken');
++      return redirect('/account/login');
++    } else {
++      // public subroute such as /account/login...
++      return {
++        isLoggedIn: false,
++        isAccountHome,
++        isPrivateRoute,
++        customer: null,
++      };
++    }
++  } else {
++    // loggedIn, default redirect to the orders page
++    if (isAccountHome) {
++      return redirect('/account/orders');
++    }
    }
  
 -  return remixData(
@@ -2605,20 +2585,6 @@ Convert the account layout to use session-based authentication.
 -    {
 -      headers: {
 -        'Cache-Control': 'no-cache, no-store, must-revalidate',
-+  if (!isLoggedIn) {
-+    // public subroute such as /account/login...
-+    return {
-+      isLoggedIn: false,
-+      isAccountHome,
-+      isPrivateRoute,
-+      customer: null,
-+    };
-+  }
-+
-+  if (isAccountHome) {
-+    return redirect('/account/orders');
-+  }
-+
 +  try {
 +    const {customer} = await storefront.query(CUSTOMER_QUERY, {
 +      variables: {
@@ -2658,12 +2624,8 @@ Convert the account layout to use session-based authentication.
 +    return <Outlet context={{customer}} />;
 +  }
 +
-+  if (!customer) {
-+    return null;
-+  }
-+
 +  return (
-+    <AccountLayout customer={customer}>
++    <AccountLayout customer={customer as CustomerFragment}>
 +      <br />
 +      <br />
 +      <Outlet context={{customer}} />
@@ -2684,7 +2646,7 @@ Convert the account layout to use session-based authentication.
    const heading = customer
      ? customer.firstName
        ? `Welcome, ${customer.firstName}`
-@@ -48,9 +115,7 @@ export default function AccountLayout() {
+@@ -51,9 +111,7 @@ export default function AccountLayout() {
        <h1>{heading}</h1>
        <br />
        <AccountMenu />
@@ -2695,7 +2657,7 @@ Convert the account layout to use session-based authentication.
      </div>
    );
  }
-@@ -95,3 +160,50 @@ function Logout() {
+@@ -98,3 +156,50 @@ function Logout() {
      </Form>
    );
  }
@@ -2755,27 +2717,18 @@ Replace the Customer Account API login with the Storefront API form.
 #### File: /app/routes/account_.login.tsx
 
 ~~~diff
-@@ -1,17 +1,139 @@
+@@ -1,7 +1,139 @@
 +import {Form, Link, useActionData, data, redirect} from 'react-router';
  import type {Route} from './+types/account_.login';
  
 -export async function loader({request, context}: Route.LoaderArgs) {
--  const url = new URL(request.url);
--  const acrValues = url.searchParams.get('acr_values') || undefined;
--  const loginHint = url.searchParams.get('login_hint') || undefined;
--  const loginHintMode = url.searchParams.get('login_hint_mode') || undefined;
--  const locale = url.searchParams.get('locale') || undefined;
+-  return context.customerAccount.login({
+-    countryCode: context.storefront.i18n.country,
+-  });
 +type ActionResponse = {
 +  error: string | null;
 +};
- 
--  return context.customerAccount.login({
--    countryCode: context.storefront.i18n.country,
--    acrValues,
--    loginHint,
--    loginHintMode,
--    locale,
--  });
++
 +export const meta: Route.MetaFunction = () => {
 +  return [{title: 'Login'}];
 +};
@@ -2908,6 +2861,7 @@ Replace the Customer Account API login with the Storefront API form.
 +    }
 +  }
 +` as const;
+\ No newline at end of file
 ~~~
 
 ### Step 16: Handle logout and session cleanup

@@ -63,7 +63,7 @@ describe('<AddToCartButton/>', () => {
     expect(screen.getByRole('button')).toHaveClass('bg-blue-600');
   });
 
-  describe('when variantId is set explicitly', () => {
+  describe('when variantId is set explicity', () => {
     it('renders a disabled button if the variantId is null', () => {
       render(
         <MockWrapper>
@@ -176,7 +176,7 @@ describe('<AddToCartButton/>', () => {
       });
     });
 
-    describe('and the initialVariantId is explicitly set to null', () => {
+    describe('and the initialVariantId is explicity set to null', () => {
       it('disables the button', () => {
         const product = getProduct();
 

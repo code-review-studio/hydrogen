@@ -42,6 +42,7 @@ export function setupHydrogenMiddleware(
         res.once('close', () => {
           emitRequestEvent(
             {
+              __fromVite: true,
               eventType: 'request',
               url: req.url!,
               requestId: req.headers['request-id'] as string,
