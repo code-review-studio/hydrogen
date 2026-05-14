@@ -88,6 +88,7 @@ Review changes to Playwright E2E tests and fixtures for the anti-patterns the te
 - Ignore generated code, vendored dependencies, and lockfiles.
 - Do not flag tests that use `page.waitForURL()` — that's an explicit navigation wait, not an arbitrary timeout, and is allowed.
 - Do not flag `expect.poll()` with a timeout option — that's the recommended replacement for arbitrary waits.
+- When the same `waitForTimeout` (or other anti-pattern) call appears across multiple sister test files with near-identical context (e.g., `old-cookies/` ↔ `new-cookies/` parallel specs, or `*-accept.spec.ts` ↔ `*-decline.spec.ts` pairs), comment **once** on the most representative instance and list the other occurrences inline in the comment body (e.g., "Same pattern also appears in `path/to/sibling-a.spec.ts:103` and `path/to/sibling-b.spec.ts:122`"). Do not post the same finding on each sibling file — it reads as a loud agent rather than a thorough one.
 
 ## Output format
 
