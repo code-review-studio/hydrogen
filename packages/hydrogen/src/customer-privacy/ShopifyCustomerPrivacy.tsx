@@ -132,7 +132,6 @@ function logMissingConfig(fieldName: string) {
   );
 }
 
-/** @publicDocs */
 export function useCustomerPrivacy(props: CustomerPrivacyApiProps) {
   const {
     withPrivacyBanner = false,
@@ -337,12 +336,7 @@ export function useCustomerPrivacy(props: CustomerPrivacyApiProps) {
     if (observing.current.customerPrivacy) return;
     observing.current.customerPrivacy = true;
 
-    // Two separate variables to represent the two lifecycle states without unsafe casts:
-    // backendConsentStub: the flag object installed after CDN's window.Shopify={} reset,
-    //                     before the CDN assigns the full customerPrivacy API
-    // fullCustomerPrivacy: the real API once the CDN's Un() assigns it
-    let backendConsentStub: {backendConsentEnabled: true} | null = null;
-    let fullCustomerPrivacy: CustomerPrivacy | null = null;
+    let customCustomerPrivacy: CustomerPrivacy | null = null;
     let customShopify: {customerPrivacy: CustomerPrivacy} | undefined | object =
       window.Shopify || undefined;
 
@@ -361,17 +355,11 @@ export function useCustomerPrivacy(props: CustomerPrivacyApiProps) {
         ) {
           customShopify = value as object;
 
-          // Keep backendConsentEnabled readable between CDN's window.Shopify = {}
-          // reset and its window.Shopify.customerPrivacy = <full API> assignment.
-          // The CDN reads this flag before assigning the full API, so the stub
-          // must be present when the CDN executes.
-          backendConsentStub = {backendConsentEnabled: true};
-
           // monitor for when window.Shopify.customerPrivacy is set
           Object.defineProperty(window.Shopify, 'customerPrivacy', {
             configurable: true,
             get() {
-              return fullCustomerPrivacy ?? backendConsentStub;
+              return customCustomerPrivacy;
             },
             set(value: unknown) {
               if (
@@ -382,7 +370,7 @@ export function useCustomerPrivacy(props: CustomerPrivacyApiProps) {
                 const customerPrivacy = value as CustomerPrivacy;
 
                 // overwrite the tracking consent method
-                fullCustomerPrivacy = {
+                customCustomerPrivacy = {
                   ...customerPrivacy,
                   // Note: this method is not used by the privacy-banner,
                   // it bundles its own setTrackingConsent.
@@ -393,7 +381,7 @@ export function useCustomerPrivacy(props: CustomerPrivacyApiProps) {
 
                 customShopify = {
                   ...customShopify,
-                  customerPrivacy: fullCustomerPrivacy,
+                  customerPrivacy: customCustomerPrivacy,
                 };
 
                 setLoaded.customerPrivacy();
@@ -642,10 +630,9 @@ function overridePrivacyBannerMethods({
  */
 export function getCustomerPrivacy() {
   try {
-    const cp = window.Shopify?.customerPrivacy;
-    // Only return the API when the consent library has fully loaded —
-    // the pre-initialized {backendConsentEnabled} config object is not the usable API.
-    return cp && 'setTrackingConsent' in cp ? (cp as CustomerPrivacy) : null;
+    return window.Shopify && window.Shopify.customerPrivacy
+      ? (window.Shopify?.customerPrivacy as CustomerPrivacy)
+      : null;
   } catch (e) {
     return null;
   }

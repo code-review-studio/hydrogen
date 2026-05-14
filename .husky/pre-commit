@@ -1,1 +1,1 @@
-pnpm exec lint-staged && pnpm run pre-commit:encrypt && bash cookbook/scripts/pre-commit.sh
+npx lint-staged && npm run pre-commit:encrypt && bash cookbook/scripts/pre-commit.sh

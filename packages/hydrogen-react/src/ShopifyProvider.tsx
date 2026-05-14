@@ -47,7 +47,6 @@ function isSfapiProxyEnabled() {
 
 /**
  * The `<ShopifyProvider/>` component enables use of the `useShop()` hook. The component should wrap your app.
- * @publicDocs
  */
 export function ShopifyProvider({
   children,
@@ -119,7 +118,6 @@ export function ShopifyProvider({
 
 /**
  * Provides access to the `shopifyConfig` prop of `<ShopifyProvider/>`. Must be a descendent of `<ShopifyProvider/>`.
- * @publicDocs
  */
 export function useShop(): ShopifyContextValue {
   const shopContext = useContext(ShopifyContext);

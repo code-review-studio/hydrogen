@@ -19,8 +19,8 @@
  *   CI=1                          - Enable CI mode (set by tests)
  *
  * Key design decisions:
- *   - Scaffolds from git history (worktree + npm pack) instead of npm registry because
- *     packages may not exist for older/unpublished versions, and git gives us exact state
+ *   - Uses git archive instead of npm for scaffolding because npm packages may not
+ *     exist for older/unpublished versions, and git gives us exact skeleton state
  *   - Skips build validation when manual steps or breaking changes are present
  *     because developers must apply those steps before the project will build
  *   - Falls back through multiple git search strategies (tags → release commits →
@@ -29,13 +29,8 @@
 
 import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
 import {execFile} from 'node:child_process';
-import {readFile, rename, writeFile, mkdir, readdir} from 'node:fs/promises';
+import {readFile, rename, unlink, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
-import {
-  parseCatalogFromWorkspaceYaml,
-  parseWorkspacePackagesFromYaml,
-  resolveWorkspaceProtocols,
-} from '../../lib/upgrade-e2e-utils.js';
 import {promisify} from 'node:util';
 import {exec} from '@shopify/cli-kit/node/system';
 import {inTemporaryDirectory} from '@shopify/cli-kit/node/fs';
@@ -43,25 +38,12 @@ import {inTemporaryDirectory} from '@shopify/cli-kit/node/fs';
 const execFileAsync = promisify(execFile) as (
   file: string,
   args: string[],
-  options: {cwd: string; timeout?: number},
+  options: {cwd: string},
 ) => Promise<{stdout: string; stderr: string}>;
 import * as upgradeModule from './upgrade.js';
 import type {Release} from './upgrade.js';
 
 type ChangeLog = Awaited<ReturnType<typeof upgradeModule.getChangelog>>;
-
-// Subprocess timeouts prevent CI hangs when git or npm encounters corrupted
-// objects or unexpected state in historical commits.
-const GIT_TIMEOUT_IN_MS = 60_000;
-const NPM_PACK_TIMEOUT_IN_MS = 120_000;
-
-// cli-kit re-exports AbortSignal from node-abort-controller (polyfill) whose
-// type is incompatible with Node's native AbortSignal. This helper bridges them.
-function timeoutSignal(timeoutInMs: number) {
-  return AbortSignal.timeout(
-    timeoutInMs,
-  ) as unknown as import('@shopify/cli-kit/node/abort').AbortSignal;
-}
 
 class ScaffoldNotFoundError extends Error {}
 
@@ -90,10 +72,6 @@ vi.mock('../../lib/shell.js', () => ({getCliCommand: vi.fn(() => 'h2')}));
 
 const commitCache = new Map<string, string | null>();
 const DEFAULT_LOOKBACK_PERIOD_IN_DAYS = 365;
-// Cap git log lookback to avoid scanning the entire commit history.
-// 200 comfortably exceeds the total Hydrogen release count, so this
-// captures every release without an unbounded scan.
-const MAX_RELEASE_LOOKBACK_COUNT = 200;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -711,11 +689,7 @@ async function findCommitByPackageJsonHistory(
       ['log', '--format=%H', '--all', '--', 'templates/skeleton/package.json'],
       {cwd: repoRoot},
     );
-    allCommits = stdout
-      .trim()
-      .split('\n')
-      .filter(Boolean)
-      .slice(0, MAX_RELEASE_LOOKBACK_COUNT);
+    allCommits = stdout.trim().split('\n').filter(Boolean).slice(0, 200);
   } catch {
     /* git unavailable or unexpected failure */
     return null;
@@ -805,30 +779,14 @@ async function isMatchingSkeletonCommit({
     const {stdout: packageContent} = await execFileAsync(
       'git',
       ['show', `${commit}:templates/skeleton/package.json`],
-      {cwd: repoRoot, timeout: GIT_TIMEOUT_IN_MS},
+      {cwd: repoRoot},
     );
     const packageJson = JSON.parse(packageContent);
 
-    let hydrogenVersion = packageJson.dependencies?.['@shopify/hydrogen'] as
-      | string
-      | undefined;
-
-    // Historical commits use workspace:* — resolve to the actual version
-    // by reading the hydrogen package.json at the same commit.
-    if (hydrogenVersion?.startsWith('workspace:')) {
-      try {
-        const {stdout} = await execFileAsync(
-          'git',
-          ['show', `${commit}:packages/hydrogen/package.json`],
-          {cwd: repoRoot, timeout: GIT_TIMEOUT_IN_MS},
-        );
-        hydrogenVersion = JSON.parse(stdout).version ?? undefined;
-      } catch {
-        hydrogenVersion = undefined;
-      }
-    }
-
-    return hydrogenVersion === version && packageJson.version === version;
+    return (
+      packageJson.dependencies?.['@shopify/hydrogen'] === version &&
+      packageJson.version === version
+    );
   } catch {
     return false;
   }
@@ -926,32 +884,6 @@ async function resolveSkeletonCommit(
   return {commit, skeletonVersion};
 }
 
-/**
- * Builds a map of workspace package name → version by reading package.json
- * files at the paths listed in pnpm-workspace.yaml.
- */
-async function buildWorkspaceVersionMap(
-  worktreeDir: string,
-  workspaceYamlContent: string,
-): Promise<Map<string, string>> {
-  const versionMap = new Map<string, string>();
-  const workspacePaths = parseWorkspacePackagesFromYaml(workspaceYamlContent);
-
-  for (const wsPath of workspacePaths) {
-    const pkgJsonPath = join(worktreeDir, wsPath, 'package.json');
-    try {
-      const pkg = JSON.parse(await readFile(pkgJsonPath, 'utf8'));
-      if (pkg.name && pkg.version) {
-        versionMap.set(pkg.name, pkg.version);
-      }
-    } catch {
-      // package.json may not exist at this path in historical commits
-    }
-  }
-
-  return versionMap;
-}
-
 async function extractSkeletonTemplate(
   tempDir: string,
   commit: string,
@@ -963,112 +895,30 @@ async function extractSkeletonTemplate(
       `Could not find git repository root for scaffolding. Ensure tests run from within the Hydrogen monorepo.`,
     );
   }
-
-  const worktreeDir = join(tempDir, 'worktree');
-  const packOutputDir = join(tempDir, 'pack');
+  const archivePath = join(tempDir, 'skeleton.tar');
 
   try {
-    // Worktree gives filesystem access to the full monorepo at the historical
-    // commit for reading workspace package versions and catalog config.
-    await exec('git', ['worktree', 'add', worktreeDir, commit], {
-      cwd: repoRoot,
-      signal: timeoutSignal(GIT_TIMEOUT_IN_MS),
-    });
-    await mkdir(packOutputDir, {recursive: true});
-
-    // npm pack is protocol-agnostic — it tars whatever is on disk without
-    // trying to resolve pnpm-specific protocols (workspace:*, catalog:).
-    // We resolve those manually after extraction via resolveWorkspaceProtocols.
-    // --ignore-scripts prevents the prepare hook from failing in historical commits.
     await exec(
-      'npm',
+      'git',
       [
-        'pack',
-        './templates/skeleton',
-        '--pack-destination',
-        packOutputDir,
-        '--ignore-scripts',
+        'archive',
+        '--format=tar',
+        commit,
+        '--output',
+        archivePath,
+        '--',
+        'templates/skeleton',
       ],
-      {cwd: worktreeDir, signal: timeoutSignal(NPM_PACK_TIMEOUT_IN_MS)},
+      {cwd: repoRoot},
     );
-
-    const files = await readdir(packOutputDir);
-    const tarball = files.find((f) => f.endsWith('.tgz'));
-    if (!tarball) {
-      throw new Error(
-        `npm pack did not generate a tarball in ${packOutputDir}`,
-      );
-    }
-
-    const tarballPath = join(packOutputDir, tarball);
-    const extractDir = join(tempDir, 'extracted');
-    await mkdir(extractDir, {recursive: true});
-
-    await exec(
-      'tar',
-      [
-        '-x',
-        '-z',
-        '-f',
-        tarballPath,
-        '-C',
-        extractDir,
-        '--exclude=package/.cursor',
-      ],
-      {signal: timeoutSignal(GIT_TIMEOUT_IN_MS)},
-    );
-
-    // npm pack tarballs extract to a "package/" subdirectory
-    const skeletonPath = join(extractDir, 'package');
-    const packageJsonPath = join(skeletonPath, 'package.json');
-
-    let packageJson: Record<string, unknown>;
-    try {
-      packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'));
-    } catch {
-      throw new Error(
-        `Skeleton template was not extracted successfully from commit ${commit} (version ${skeletonVersion}).\n` +
-          `Expected path ${skeletonPath} does not exist or is missing package.json.\n` +
-          `This might indicate templates/skeleton doesn't exist at that commit.`,
-      );
-    }
-
-    // Resolve pnpm-specific protocols (workspace:*, catalog:) that npm pack
-    // left as-is. Post-pnpm-migration commits (2026.1.1+) have these;
-    // pre-pnpm commits have plain version strings and skip this step.
-    const workspaceYamlPath = join(worktreeDir, 'pnpm-workspace.yaml');
-    let workspaceYaml: string | null = null;
-    try {
-      workspaceYaml = await readFile(workspaceYamlPath, 'utf8');
-    } catch {
-      // Pre-pnpm commits have no pnpm-workspace.yaml — no protocols to resolve
-    }
-
-    if (workspaceYaml) {
-      const catalogVersions = parseCatalogFromWorkspaceYaml(workspaceYaml);
-      const workspaceVersions = await buildWorkspaceVersionMap(
-        worktreeDir,
-        workspaceYaml,
-      );
-
-      const resolved = await resolveWorkspaceProtocols({
-        packageJson: packageJson as Parameters<
-          typeof resolveWorkspaceProtocols
-        >[0]['packageJson'],
-        catalogVersions,
-        resolveWorkspaceVersion: async (name) => {
-          return workspaceVersions.get(name) ?? null;
-        },
-        fallbackVersion: skeletonVersion,
-      });
-
-      await writeFile(
-        packageJsonPath,
-        JSON.stringify(resolved, null, 2) + '\n',
-      );
-    }
-
-    return skeletonPath;
+    await exec('tar', [
+      '-x',
+      '-f',
+      archivePath,
+      '-C',
+      tempDir,
+      '--exclude=templates/skeleton/.cursor',
+    ]);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(
@@ -1077,14 +927,24 @@ async function extractSkeletonTemplate(
         `Original error: ${message}`,
     );
   } finally {
-    // Clean up worktree
-    await exec('git', ['worktree', 'remove', worktreeDir], {
-      cwd: repoRoot,
-      signal: timeoutSignal(GIT_TIMEOUT_IN_MS),
-    }).catch(() => {
-      /* Best effort cleanup */
+    await unlink(archivePath).catch(() => {
+      /* Expected: archive file might already be deleted */
     });
   }
+
+  const skeletonPath = join(tempDir, 'templates/skeleton');
+
+  try {
+    await readFile(join(skeletonPath, 'package.json'), 'utf8');
+  } catch (error) {
+    throw new Error(
+      `Skeleton template was not extracted successfully from commit ${commit} (version ${skeletonVersion}).\n` +
+        `Expected path ${skeletonPath} does not exist or is missing package.json.\n` +
+        `This might indicate templates/skeleton doesn't exist at that commit.`,
+    );
+  }
+
+  return skeletonPath;
 }
 
 async function initializeTestProject(projectDir: string): Promise<void> {

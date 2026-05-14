@@ -52,7 +52,7 @@ Recipes come paired with LLM prompts that can be included in a Hydrogen project 
 
 ## Usage
 
-The cookbook comes with a set of commands for creating and managing recipes. All commands are managed by the main `cookbook.ts` script, which can be invoked from this folder with `pnpm run cookbook`.
+The cookbook comes with a set of commands for creating and managing recipes. All commands are managed by the main `cookbook.ts` script, which can be invoked from this folder with `npm run cookbook`.
 
 ```plain
 cookbook.ts <command>
@@ -92,7 +92,7 @@ Options:
 #### Example
 
 ```sh
-pnpm run cookbook -- apply --recipe my-recipe
+npm run cookbook -- apply --recipe my-recipe
 ```
 
 ### Generate
@@ -132,7 +132,7 @@ Options:
 #### Example
 
 ```sh
-pnpm run cookbook -- generate --recipe my-recipe
+npm run cookbook -- generate --recipe my-recipe
 ```
 
 
@@ -179,7 +179,7 @@ Options:
 #### Example
 
 ```sh
-pnpm run cookbook -- validate --recipe my-recipe
+npm run cookbook -- validate --recipe my-recipe
 ```
 
 ### Render
@@ -204,7 +204,7 @@ Options:
 #### Example
 
 ```sh
-pnpm run cookbook -- render --recipe my-recipe --format github
+npm run cookbook -- render --recipe my-recipe --format github
 ```
 
 ### Regenerate
@@ -240,7 +240,7 @@ Options:
 #### Example
 
 ```sh
-pnpm run cookbook -- regenerate --recipe my-recipe --format github
+npm run cookbook -- regenerate --recipe my-recipe --format github
 ```
 
 ### Update
@@ -267,7 +267,7 @@ Options:
 #### Example
 
 ```sh
-pnpm run cookbook -- update --recipe my-recipe
+npm run cookbook -- update --recipe my-recipe
 ```
 
 ### Schema
@@ -289,7 +289,7 @@ Options:
 #### Example
 
 ```sh
-pnpm run cookbook -- schema
+npm run cookbook -- schema
 ```
 
 ### Skeleton Files
@@ -319,16 +319,16 @@ Options:
 
 ```sh
 # List all skeleton files referenced by any recipe
-pnpm run cookbook -- skeleton-files
+npm run cookbook -- skeleton-files
 
 # List files for a specific recipe
-pnpm run cookbook -- skeleton-files --recipe my-recipe
+npm run cookbook -- skeleton-files --recipe my-recipe
 
 # List files for multiple recipes, as JSON
-pnpm run cookbook -- skeleton-files --recipe recipe-a --recipe recipe-b --json
+npm run cookbook -- skeleton-files --recipe recipe-a --recipe recipe-b --json
 
 # Only show files that currently exist on disk
-pnpm run cookbook -- skeleton-files --existing-only
+npm run cookbook -- skeleton-files --existing-only
 ```
 
 Default (text) output format:
@@ -373,15 +373,15 @@ Options:
 
 ```sh
 # Check which recipes are affected by a changed file
-pnpm run cookbook -- affected-recipes templates/skeleton/app/root.tsx
+npm run cookbook -- affected-recipes templates/skeleton/app/root.tsx
 
 # Pass multiple files
-pnpm run cookbook -- affected-recipes \
+npm run cookbook -- affected-recipes \
   templates/skeleton/app/root.tsx \
   templates/skeleton/app/server.ts
 
 # Output as a JSON array (useful for scripting / CI matrix jobs)
-pnpm run cookbook -- affected-recipes --json templates/skeleton/app/root.tsx
+npm run cookbook -- affected-recipes --json templates/skeleton/app/root.tsx
 ```
 
 Default (text) output — one recipe name per line:

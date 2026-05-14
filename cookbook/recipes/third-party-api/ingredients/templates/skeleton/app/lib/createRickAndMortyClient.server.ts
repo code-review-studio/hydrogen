@@ -4,8 +4,6 @@ import {
   type CachingStrategy,
 } from '@shopify/hydrogen';
 
-export const OPERATION_NAME_PATTERN = /^(query|mutation)\s\w+/;
-
 export function createRickAndMortyClient({
   cache,
   waitUntil,
@@ -40,7 +38,7 @@ export function createRickAndMortyClient({
           shouldCacheResponse: (body) => !body?.error,
           cacheKey: ['r&m', body],
           displayName:
-            'Rick & Morty - ' + query.match(OPERATION_NAME_PATTERN)?.[0],
+            'Rick & Morty - ' + query.match(/^(query|mutation)\s\w+/)?.[0],
         },
       );
 
@@ -56,7 +54,7 @@ export function createRickAndMortyClient({
   };
 }
 
-export function minifyQuery<T extends string>(string: T) {
+function minifyQuery<T extends string>(string: T) {
   return string
     .replace(/\s*#.*$/gm, '') // Remove GQL comments
     .replace(/\s+/gm, ' ') // Minify spaces

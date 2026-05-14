@@ -16,7 +16,6 @@ export interface RichTextPropsBase<ComponentGeneric extends React.ElementType> {
   plain?: boolean;
 }
 
-/** @publicDocs */
 export function RichText<ComponentGeneric extends React.ElementType = 'div'>({
   as,
   data,
@@ -210,6 +209,5 @@ function richTextToString(
 }
 
 // This is only for documentation purposes, and it is not used in the code.
-/** @publicDocs */
 export type RichTextPropsForDocs<AsType extends React.ElementType = 'div'> =
   RichTextPropsBase<AsType>;

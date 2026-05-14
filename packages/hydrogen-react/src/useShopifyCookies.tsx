@@ -49,7 +49,6 @@ type UseShopifyCookiesOptions = CoreShopifyCookiesOptions & {
  * Useful when you only want to use the newer tracking values and not rely on the deprecated ones.
  *
  * @returns `true` when cookies are set and ready.
- * @publicDocs
  */
 export function useShopifyCookies(options?: UseShopifyCookiesOptions): boolean {
   const {

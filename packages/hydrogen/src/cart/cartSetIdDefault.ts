@@ -11,7 +11,6 @@ export type CookieOptions = {
   path?: string;
 };
 
-/** @publicDocs */
 export const cartSetIdDefault = (cookieOptions?: CookieOptions) => {
   return (cartId: string) => {
     const headers = new Headers();

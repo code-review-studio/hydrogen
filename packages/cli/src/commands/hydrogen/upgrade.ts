@@ -56,7 +56,7 @@ export type Release = {
   commit: `https://${string}`;
   date: string;
   dependencies: Record<string, string>;
-  devDependencies?: Record<string, string>;
+  devDependencies: Record<string, string>;
   dependenciesMeta?: Record<string, {required: boolean}>;
   removeDependencies?: string[];
   removeDevDependencies?: string[];
@@ -82,10 +82,6 @@ export type CumulativeRelease = {
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
 };
-
-function getAllRemovedPackages(release: CumulativeRelease): string[] {
-  return [...release.removeDependencies, ...release.removeDevDependencies];
-}
 
 const INSTRUCTIONS_FOLDER = '.hydrogen';
 
@@ -303,7 +299,7 @@ export async function isRunningFromHydrogenMonorepo(): Promise<boolean> {
 function createNextRelease(latestRelease: Release): Release {
   // Use latest release as base and override specific @shopify packages to "next"
   const dependencies = {...latestRelease.dependencies};
-  const devDependencies = {...(latestRelease.devDependencies ?? {})};
+  const devDependencies = {...latestRelease.devDependencies};
 
   // Override @shopify/hydrogen and @shopify/mini-oxygen to "next" if they exist
   if (dependencies['@shopify/hydrogen']) {
@@ -450,7 +446,7 @@ function hasOutdatedDependencies({
 }) {
   return Object.entries({
     ...release.dependencies,
-    ...(release.devDependencies ?? {}),
+    ...release.devDependencies,
   }).some(([name, version]) => {
     // Skip checking the bundled CLI for now because it's always outdated.
     // (we release a new version of the CLI after every Hydrogen release)
@@ -635,8 +631,8 @@ export function getCumulativeRelease({
   const removedDepsAt = new Map<string, number>();
   const removedDevDepsAt = new Map<string, number>();
 
-  // Last-write-wins: the map stores the index of the final removal for each dep.
-  // A re-addition only suppresses a removal if it occurs at or after that final removal index.
+  // Last-write-wins: If a dep is removed in multiple releases, the map stores the *last* removal index.
+  // This ensures that a re-addition between two removal occurrences won't suppress the later removal.
   releasesByVersion.forEach((release, i) => {
     release.removeDependencies?.forEach((dep) => {
       removedDepsAt.set(dep, i);
@@ -726,9 +722,7 @@ export function displayConfirmation({
   targetVersion?: string;
 }) {
   const {features, fixes} = cumulativeRelease;
-  const allRemovedPackages = getAllRemovedPackages(cumulativeRelease);
-
-  if (features.length || fixes.length || allRemovedPackages.length) {
+  if (features.length || fixes.length) {
     renderInfo({
       headline: `Included in this upgrade:`,
       // @ts-expect-error - filter(Boolean) removes falsy values, leaving only objects
@@ -749,16 +743,6 @@ export function displayConfirmation({
             {
               list: {
                 items: fixes.map((item) => item.title),
-              },
-            },
-          ],
-        },
-        allRemovedPackages.length && {
-          title: 'Removed packages',
-          body: [
-            {
-              list: {
-                items: allRemovedPackages,
               },
             },
           ],
@@ -899,7 +883,7 @@ export function buildUpgradeCommandArgs({
   };
   const effectiveDevDependencies = {
     ...(cumulativeDevDependencies ?? {}),
-    ...(selectedRelease.devDependencies ?? {}),
+    ...selectedRelease.devDependencies,
   };
 
   // upgrade dependencies
@@ -1019,7 +1003,8 @@ export async function upgradeNodeModules({
 }) {
   const tasks: Array<{title: string; task: () => Promise<void>}> = [];
 
-  // Cumulative removals cover all intermediate releases when upgrading across multiple versions.
+  // Cumulative removals cover intermediate releases (multi-version jumps).
+  // Defaults to the target release's own removals when not upgrading across multiple versions.
   const depsToRemove = [
     ...cumulativeRemoveDependencies,
     ...cumulativeRemoveDevDependencies,
@@ -1410,7 +1395,7 @@ function generateStepMd(item: ReleaseItem) {
 /**
  * Generates a markdown file with upgrade instructions
  */
-export async function generateUpgradeInstructionsFile({
+async function generateUpgradeInstructionsFile({
   appPath,
   cumulativeRelease,
   currentVersion,
@@ -1444,14 +1429,7 @@ export async function generateUpgradeInstructionsFile({
     .filter((fixes) => fixes.steps)
     .map(generateStepMd);
 
-  const allRemovedPackages = getAllRemovedPackages(cumulativeRelease);
-
-  if (
-    !featuresMd.length &&
-    !fixesMd.length &&
-    !breakingChangesMd.length &&
-    !allRemovedPackages.length
-  ) {
+  if (!featuresMd.length && !fixesMd.length && !breakingChangesMd.length) {
     renderInfo({
       headline: `No upgrade instructions generated`,
       body: `There are no additional upgrade instructions for this version.`,
@@ -1481,13 +1459,6 @@ export async function generateUpgradeInstructionsFile({
     md += `\n${featuresMd.length ? '----\n\n' : ''}## Fixes\n\n${fixesMd.join(
       '\n',
     )}`;
-  }
-
-  if (allRemovedPackages.length) {
-    md += fixesMd.length ? '\n\n----\n\n' : '\n';
-    md += `## Removed packages\n\nThe following packages have been removed as part of this upgrade:\n\n`;
-    md += allRemovedPackages.map((dep) => `- \`${dep}\``).join('\n');
-    md += '\n';
   }
 
   const filePath = joinPath(instructionsFolderPath, filename);

@@ -59,6 +59,7 @@ query VerifyMetaobjectsData {
   # ============================================================================
   # Tests require: Homepage should render with at least one section
   # Test: "Homepage > renders route content with metaobject sections"
+  # Test: "Homepage > renders multiple section types via type switching"
 
   routeHome: metaobject(handle: {type: "route", handle: "route-home"}) {
     id
@@ -145,12 +146,12 @@ query VerifyMetaobjectsData {
               type
               handle
 
-              # Store heading (required by "renders store grid" and "renders store profile details")
+              # Store heading (required by tests at line 123)
               heading: field(key: "heading") {
                 value
               }
 
-              # Store address (required by "renders store grid" and "renders store profile details")
+              # Store address (required by tests at line 126, 229)
               address: field(key: "address") {
                 value
               }

@@ -1,49 +1,5 @@
 # @shopify/hydrogen-react
 
-## 2026.4.1
-
-### Patch Changes
-
-- Fix cart operations failing on stores without `VisitorConsent` type ([#3720](https://github.com/Shopify/hydrogen/pull/3720)) by [@itsjustriley](https://github.com/itsjustriley)
-
-  Cart operations (like `cart.setMetafields()`) were unconditionally including the `visitorConsent` parameter in GraphQL operations, even when not being used. This caused failures on stores whose Storefront API schema doesn't include the `VisitorConsent` type (older API versions or certain store configurations).
-
-  The `visitorConsent` parameter is now only included in cart GraphQL operations when explicitly provided. This restores compatibility with stores that don't support the `VisitorConsent` type while preserving the feature for users who need it.
-
-## 2026.4.0
-
-### Major Changes
-
-- Update Storefront API and Customer Account API from 2026-01 to 2026-04. ([#3651](https://github.com/Shopify/hydrogen/pull/3651)) by [@itsjustriley](https://github.com/itsjustriley)
-
-  ## Breaking changes
-
-  **JSON metafield values limited to 128KB**: When using API version 2026-04 or later, the Storefront API limits JSON type metafield writes to 128KB. This limit applies at the API level - Hydrogen passes through to the Storefront API without additional restriction. Apps that used JSON metafields before April 1, 2026 are grandfathered at the existing 2MB limit. Large metafield values continue to be readable by all API versions.
-
-  ## New features
-
-  **New `MERCHANDISE_LINE_TRANSFORMERS_RUN_ERROR` cart error code**: Cart operations (`cartCreate`, `cartLinesAdd`, etc.) now return a specific `MERCHANDISE_LINE_TRANSFORMERS_RUN_ERROR` error code when a Cart Transform Function fails at runtime, instead of the previous generic `INVALID` error code. If you handle cart errors in your storefront code, you may want to add handling for this new code.
-
-  ## Changelog links
-  - [Storefront API 2026-04 changelog](https://shopify.dev/changelog?filter=api&api_version=2026-04&api_type=storefront-graphql)
-  - [Customer Account API 2026-04 changelog](https://shopify.dev/changelog?filter=api&api_version=2026-04&api_type=customer-account-graphql)
-
-## 2026.1.2
-
-### Patch Changes
-
-- Remove `engines` field from package.json to avoid blocking installation on newer Node.js versions ([#3596](https://github.com/Shopify/hydrogen/pull/3596)) by [@robin-drexler](https://github.com/robin-drexler)
-
-- Inline `useMachine` hook from `@xstate/react/fsm`, removing the `@xstate/react` dependency ([#3594](https://github.com/Shopify/hydrogen/pull/3594)) by [@fredericoo](https://github.com/fredericoo)
-
-  The `@xstate/react` package had no version supporting both React 19 and `@xstate/fsm`. By inlining the
-  React binding from `@xstate/react/fsm`, we eliminate this dependency (and its React version peer dep constraint) while
-  keeping `@xstate/fsm` and the cart state machine definition completely unchanged.
-
-  This also removes `use-sync-external-store` and `use-isomorphic-layout-effect` (which existed solely
-  as transitive deps of `@xstate/react`) and cleans up the Vite config workarounds that were needed
-  because `@xstate/react/fsm` had broken ESM resolution.
-
 ## 2026.1.1
 
 ### Patch Changes

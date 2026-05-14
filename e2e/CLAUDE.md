@@ -17,27 +17,6 @@
 ❌ `page.waitForResponse(...)` - Implementation detail
 ❌ `page.locator('.css-class')` - Fragile selectors
 ❌ Adding test IDs when accessibility markup would work
-❌ Hardcoding dynamic store data names (e.g., collection titles from `sortKey: UPDATED_AT` queries)
-
-### Dynamic Store Data
-
-When testing homepage sections that query dynamic store data (e.g., "most recently updated collection"),
-assert **structure** rather than specific names:
-
-```typescript
-// GOOD: Assert that a featured collection heading exists (any h1)
-const featuredCollectionHeading = page.getByRole('heading', {level: 1});
-await expect(featuredCollectionHeading).toBeVisible();
-
-// AVOID: Hardcoding a collection name that depends on store state
-const featuredCollectionHeading = page.getByRole('heading', {
-  level: 1,
-  name: 'Winter Collection', // ❌ Breaks when a different collection is most recently updated
-});
-```
-
-Only assert specific entity names when navigating to a known entity by **handle** (a stable identifier),
-e.g., `/products/${KNOWN_PRODUCT.handle}`.
 
 ## Test Isolation
 
@@ -56,7 +35,7 @@ Per [Playwright best practices](https://playwright.dev/docs/best-practices#make-
 test.describe('Quantity Management', () => {
   test.beforeEach(async ({storefront}) => {
     await storefront.goto('/');
-    await storefront.navigateToInStockProduct();
+    await storefront.navigateToFirstProduct();
     await storefront.addToCart();
   });
 
@@ -70,7 +49,7 @@ test.describe('Quantity Management', () => {
 // ACCEPTABLE: Duplicate simple 1-2 line setups when it improves clarity
 test('adds item to empty cart', async ({storefront}) => {
   await storefront.goto('/');
-  await storefront.navigateToInStockProduct();
+  await storefront.navigateToFirstProduct();
   await storefront.addToCart();
 
   await expect(storefront.getCartLineItems()).toHaveCount(1);
@@ -79,7 +58,7 @@ test('adds item to empty cart', async ({storefront}) => {
 // AVOID: Repeating 3+ lines in every test
 test('increases quantity', async ({storefront}) => {
   await storefront.goto('/'); // Repeated
-  await storefront.navigateToInStockProduct(); // Repeated
+  await storefront.navigateToFirstProduct(); // Repeated
   await storefront.addToCart(); // Repeated
   // Use beforeEach instead
 });
@@ -256,10 +235,10 @@ The Playwright config does not specify a headed mode by default, so tests run he
 
 ```bash
 # CORRECT: Run tests (headless by default)
-pnpm exec playwright test --project=skeleton
+npx playwright test --project=skeleton
 
 # AVOID: Running with headed browser
-pnpm exec playwright test --project=skeleton --headed  # Don't do this
+npx playwright test --project=skeleton --headed  # Don't do this
 ```
 
 If you need to debug visually, use Playwright's trace viewer or UI mode temporarily, but never commit headed configuration.
@@ -315,22 +294,22 @@ getCartLineItems() {
 ### Running Locally
 
 **Prerequisites:**
-- Shopify CLI authenticated: `cd templates/skeleton && pnpm exec shopify auth login`
-- Skeleton linked to benchmark store: `cd templates/skeleton && pnpm exec shopify hydrogen link`
+- Shopify CLI authenticated: `cd templates/skeleton && npx shopify auth login`
+- Skeleton linked to benchmark store: `cd templates/skeleton && npx shopify hydrogen link`
 - ejson configured (`./scripts/setup-ejson-private-key.sh`) — required for both the test email and the loadtest header (OTP bypass)
 
 ```bash
 # With ejson configured:
-pnpm exec playwright test --project=skeleton e2e/specs/skeleton/customerAccount.spec.ts
+npx playwright test --project=skeleton e2e/specs/skeleton/customerAccount.spec.ts
 
 # Override test email (ejson is still required for the loadtest header):
 CUSTOMER_ACCOUNT_TEST_EMAIL="hydrogen-e2e-test@example.com" \
-  pnpm exec playwright test --project=skeleton e2e/specs/skeleton/customerAccount.spec.ts
+  npx playwright test --project=skeleton e2e/specs/skeleton/customerAccount.spec.ts
 
 # Against an existing Oxygen deployment (skips tunnel):
 CUSTOMER_ACCOUNT_URL=https://your-oxygen-deployment.oxygen.myshopify.com \
 OXYGEN_AUTH_BYPASS_TOKEN=your-token \
-  pnpm exec playwright test --project=skeleton e2e/specs/skeleton/customerAccount.spec.ts
+  npx playwright test --project=skeleton e2e/specs/skeleton/customerAccount.spec.ts
 ```
 
 Without `CUSTOMER_ACCOUNT_URL`, the test starts a local dev server with `--customer-account-push` which creates a Cloudflare quick-tunnel.

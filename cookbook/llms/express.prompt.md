@@ -2546,11 +2546,7 @@ Configure Vite for Express deployment with Node.js module externalization
         * Include 'example-dep' in the array below.
         * @see https://vitejs.dev/config/dep-optimization-options
         */
--      include: [
--        'react-router > set-cookie-parser',
--        'react-router > cookie',
--        'react-router',
--      ],
+-      include: ['set-cookie-parser', 'cookie', 'react-router'],
 +      include: ['@react-router/node', '@react-router/express'],
      },
    },
@@ -2603,6 +2599,7 @@ Configure Vite for Express deployment with Node.js module externalization
 - [`templates/skeleton/app/routes/account_.authorize.tsx`](templates/skeleton/app/routes/account_.authorize.tsx)
 - [`templates/skeleton/app/routes/account_.login.tsx`](templates/skeleton/app/routes/account_.login.tsx)
 - [`templates/skeleton/app/routes/account_.logout.tsx`](templates/skeleton/app/routes/account_.logout.tsx)
+- [`templates/skeleton/app/routes/api.$version.[graphql.json].tsx`](templates/skeleton/app/routes/api.$version.[graphql.json].tsx)
 - [`templates/skeleton/app/routes/blogs.$blogHandle.$articleHandle.tsx`](templates/skeleton/app/routes/blogs.$blogHandle.$articleHandle.tsx)
 - [`templates/skeleton/app/routes/blogs.$blogHandle._index.tsx`](templates/skeleton/app/routes/blogs.$blogHandle._index.tsx)
 - [`templates/skeleton/app/routes/blogs._index.tsx`](templates/skeleton/app/routes/blogs._index.tsx)

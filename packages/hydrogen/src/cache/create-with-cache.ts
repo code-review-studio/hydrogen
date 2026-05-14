@@ -55,7 +55,6 @@ export type WithCache = {
   ) => Promise<{data: T | null; response: Response}>;
 };
 
-/** @publicDocs */
 export function createWithCache(
   cacheOptions: CreateWithCacheOptions,
 ): WithCache {

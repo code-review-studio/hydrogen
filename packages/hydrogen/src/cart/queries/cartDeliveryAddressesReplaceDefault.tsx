@@ -41,7 +41,6 @@ export type CartDeliveryAddressesReplaceFunction = (
  *    }
  *  ], { someOptionalParam: 'value' }
  * );
- * @publicDocs
  */
 export function cartDeliveryAddressesReplaceDefault(
   options: CartQueryOptions,
@@ -66,7 +65,7 @@ export function cartDeliveryAddressesReplaceDefault(
   };
 }
 
-//! @see: https://shopify.dev/docs/api/storefront/2026-04/mutations/cartDeliveryAddressesReplace
+//! @see: https://shopify.dev/docs/api/storefront/2026-01/mutations/cartDeliveryAddressesReplace
 export const CART_DELIVERY_ADDRESSES_REPLACE_MUTATION = (
   cartFragment = MINIMAL_CART_FRAGMENT,
 ) => `#graphql

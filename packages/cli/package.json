@@ -4,7 +4,7 @@
     "access": "public",
     "@shopify:registry": "https://registry.npmjs.org"
   },
-  "version": "11.1.16",
+  "version": "11.1.11",
   "license": "MIT",
   "type": "module",
   "repository": {
@@ -13,15 +13,15 @@
     "directory": "packages/cli-hydrogen"
   },
   "scripts": {
-    "build": "tsup && node scripts/build-check.mjs",
-    "dev": "tsup --watch ./src --watch ../../templates/skeleton",
+    "build": "tsdown --config-loader unrun && node scripts/build-check.mjs",
+    "dev": "tsdown --config-loader unrun --watch ./src --watch ../../templates/skeleton",
     "typecheck": "tsc --noEmit",
     "generate:manifest": "node scripts/generate-manifest.mjs",
     "test": "cross-env SHOPIFY_UNIT_TEST=1 LANG=en-US.UTF-8 vitest run --test-timeout=60000",
     "test:watch": "cross-env SHOPIFY_UNIT_TEST=1 LANG=en-US.UTF-8 vitest --test-timeout=60000"
   },
   "devDependencies": {
-    "@react-router/dev": "7.14.0",
+    "@react-router/dev": "7.12.0",
     "@types/diff": "^5.0.2",
     "@types/gunzip-maybe": "^1.4.0",
     "@types/node": "catalog:",
@@ -63,7 +63,7 @@
   },
   "peerDependencies": {
     "@graphql-codegen/cli": "^5.0.2",
-    "@react-router/dev": "7.14.0",
+    "@react-router/dev": "7.12.0",
     "@shopify/hydrogen-codegen": "workspace:*",
     "@shopify/mini-oxygen": "workspace:*",
     "graphql-config": "^5.0.3",

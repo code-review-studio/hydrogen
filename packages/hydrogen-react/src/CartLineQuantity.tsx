@@ -1,7 +1,6 @@
 import type {ComponentPropsWithoutRef, ElementType} from 'react';
 import {useCartLine} from './CartLineProvider.js';
 
-/** @publicDocs */
 interface CartLineQuantityBaseProps<
   ComponentGeneric extends ElementType = 'span',
 > {
@@ -20,7 +19,6 @@ export type CartLineQuantityProps<ComponentGeneric extends ElementType> =
  * The `<CartLineQuantity/>` component renders a `span` (or another element / component that can be customized by the `as` prop) with the cart line's quantity.
  *
  * It must be a descendent of a `<CartLineProvider/>` component, and uses the `useCartLine()` hook internally.
- * @publicDocs
  */
 export function CartLineQuantity<ComponentGeneric extends ElementType = 'span'>(
   props: CartLineQuantityProps<ComponentGeneric>,

@@ -21,7 +21,6 @@ export interface ProductPriceProps {
 /**
  * The `ProductPrice` component renders a `Money` component with the product
  * [`priceRange`](https://shopify.dev/api/storefront/reference/products/productpricerange)'s `maxVariantPrice` or `minVariantPrice`, for either the regular price or compare at price range.
- * @publicDocs
  */
 export function ProductPrice<
   ComponentGeneric extends React.ElementType = 'div',
@@ -102,7 +101,6 @@ export function ProductPrice<
 }
 
 // This is only for documentation purposes, and it is not used in the code.
-/** @publicDocs */
 export interface ProductPricePropsForDocs<
   AsType extends React.ElementType = 'div',
 >

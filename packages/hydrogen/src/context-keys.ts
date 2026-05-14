@@ -32,7 +32,6 @@ export const waitUntilContext = createContext<WaitUntil>();
  *   const cart = context.get(hydrogenContext.cart);
  * }
  * ```
- * @publicDocs
  */
 export const hydrogenContext = {
   storefront: storefrontContext,

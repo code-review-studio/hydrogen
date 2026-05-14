@@ -22,7 +22,6 @@ type StorefrontRedirect = {
  * conditionally redirecting after a 404 response.
  *
  * @see {@link https://help.shopify.com/en/manual/online-store/menus-and-links/url-redirect Creating URL redirects in Shopify}
- * @publicDocs
  */
 export async function storefrontRedirect(
   options: StorefrontRedirect,

@@ -2,10 +2,8 @@ import type {LoaderFunctionArgs} from 'react-router';
 import type {Storefront} from '../storefront';
 import type {CustomerAccount} from '../customer/types';
 
-/** @publicDocs */
-export type GraphiQLLoader = (args: LoaderFunctionArgs) => Promise<Response>;
+type GraphiQLLoader = (args: LoaderFunctionArgs) => Promise<Response>;
 
-/** @publicDocs */
 export const graphiqlLoader: GraphiQLLoader = async function graphiqlLoader({
   request,
   context,

@@ -48,6 +48,7 @@ const ROUTE_MAP = {
   search: ['search', 'api.predictive-search'],
   robots: '[robots.txt]',
   sitemap: ['[sitemap.xml]', 'sitemap.$type.$page[.xml]'],
+  tokenlessApi: 'api.$version.[graphql.json]',
 };
 
 type RouteKey = keyof typeof ROUTE_MAP;
@@ -335,10 +336,7 @@ export async function generateProjectFile(
 }
 
 function replaceAdapters(templateContent: string, adapter: string) {
-  return templateContent.replace(
-    /(from\s+['"])react-router(['"])/g,
-    `$1${adapter}$2`,
-  );
+  return templateContent.replace(/@shopify\/remix-oxygen/g, adapter);
 }
 
 /**
